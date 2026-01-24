@@ -40,7 +40,7 @@ function Server({ status }: ServerProps) {
 		const interval = setInterval(() => {
 			duration += 1;
 			if (durationRef.current) {
-				durationRef.current.textContent = roundDuration(Math.abs(duration));
+				durationRef.current.textContent = roundDuration(duration);
 			}
 		}, 1_000);
 
