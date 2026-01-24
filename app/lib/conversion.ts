@@ -18,6 +18,8 @@ export function gameState(gamestate: number) {
 }
 
 export function roundDuration(seconds: number) {
+	seconds = Math.abs(seconds);
+
 	const minutes = Math.floor(seconds / 60);
 	const hours = Math.floor(minutes / 60);
 
