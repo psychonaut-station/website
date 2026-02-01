@@ -1,6 +1,6 @@
 import { publicLogFiles } from '@/app/lib/constants';
 import type { ExtendedRoundData, OverviewData, Picture, Player, RoundData } from '@/app/lib/definitions';
-import { get } from '@/app/lib/headers';
+import { get, head } from '@/app/lib/headers';
 import { convertToUTC } from '@/app/lib/time';
 
 const revalidate = 3_600; // 1 hour
@@ -175,7 +175,7 @@ export async function getRound(roundId: number): Promise<Omit<ExtendedRoundData,
 		};
 
 		try {
-			const logFileResponse = await get(fileUrl, revalidate);
+			const logFileResponse = await head(fileUrl, revalidate);
 
 			if (logFileResponse.ok) {
 				logFile.src = fileUrl;

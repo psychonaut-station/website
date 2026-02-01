@@ -15,3 +15,4 @@ export const post = async (url: string, body?: any) => await fetch(url, {
 	},
 	...(body && { body: JSON.stringify(body) }),
 });
+export const head = async (url: string, revalidate?: number) => await fetch(url, { method: 'HEAD', headers, next: { revalidate } });
