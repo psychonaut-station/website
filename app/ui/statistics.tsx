@@ -192,9 +192,7 @@ function Events() {
 	useSWRImmutable(`/api/events/${selectedCategory}?page=${debouncedPage + 1}&fetch_size=${pageSize}`, fetcher);
 
 	useEffect(() => {
-		if (events) {
-			setOptimisticEvents(events);
-		}
+		if (events) setOptimisticEvents(events);
 	}, [events]);
 
 	// todo: sayfa değiştirip geri dönünce scroll yapmaması gerekirken yapıyor
@@ -235,7 +233,7 @@ function Events() {
 					options={pageSizeOptions}
 					totalCount={optimisticEvents?.total_count}
 					loading={optimisticEvents !== null && isLoading}
-					onPageChange={(page) => setPage(page)}
+					onPageChange={setPage}
 					onPageSizeChange={(size) => { setPageSize(size as PageSizeOption); setPage(1); }}
 				/>
 			</div>

@@ -3,23 +3,24 @@
 import { faCalendarAlt, faClock, faExclamationTriangle, faLayerGroup, faSpinner, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { useDebounce } from 'use-debounce';
 
-import type { Message as MessageType } from '@/app/lib/definitions';
+import { useScrollInto } from '@/app/hooks/useScrollInto';
+import type { Message as MessageData } from '@/app/lib/definitions';
 import fetcher from '@/app/lib/fetcher';
-import { Navigation } from '@/app/ui/navigation';
+import { Pagination } from '@/app/ui/navigation';
 
 type MessageResponse = {
-	data: MessageType[];
+	data: MessageData[];
 	total_count: number;
 }
 
 const pageSizeOptions = [5, 10, 15, 20] as const;
 type PageSizeOption = (typeof pageSizeOptions)[number];
 
-export default function AdminRemarks() {
+export default function PlayerMessages() {
 	return (
 		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 sm:px-14 lg:px-[13.5rem]">
 			<Messages/>
@@ -33,94 +34,51 @@ function Messages() {
 	const [debouncedPage] = useDebounce(page, 200);
 	const [pageSize, setPageSize] = useState<PageSizeOption>(10);
 
-	const [shownData, setShownData] = useState<MessageResponse | null>(null);
-
-	const { data, error, isLoading } = useSWRImmutable<MessageResponse>(`/api/player/messages?page=${debouncedPage}&fetch_size=${pageSize}`, fetcher);
-
+	const [optimisticMessages, setOptimisticMessages] = useState<MessageResponse | null>(null);
+	const { data: messages, error, isLoading } = useSWRImmutable<MessageResponse>(`/api/player/messages?page=${debouncedPage}&fetch_size=${pageSize}`, fetcher);
 	useSWRImmutable(`/api/player/messages?page=${debouncedPage + 1}&fetch_size=${pageSize}`, fetcher);
 
 	useEffect(() => {
-		if (data) {
-			setShownData(data);
-		}
-	}, [data]);
+		if (messages) setOptimisticMessages(messages);
+	}, [messages]);
 
-	const maxPage = useMemo(() => Math.ceil((shownData?.total_count ?? 1) / pageSize), [pageSize, shownData?.total_count]);
-
-	useEffect(() => {
-		if (page > maxPage && maxPage > 0) {
-			setPage(maxPage);
-		}
-	}, [page, maxPage]);
-
-	const lastLength = useRef(0);
-
-	useEffect(() => {
-		if (shownData?.data.length) {
-			if (lastLength.current !== 0) {
-				setTimeout(() => {
-					document.getElementById('events-navigation')?.scrollIntoView({
-						block: 'end',
-						behavior: 'smooth',
-					});
-				}, 50);
-			}
-			lastLength.current = shownData.data.length;
-		}
-	}, [shownData?.data.length]);
-
-	const onNext = useCallback(() => setPage((p) => Math.min(p + 1, maxPage)), [maxPage]);
-	const onPrevious = useCallback(() => setPage((p) => Math.max(p - 1, 1)), []);
-	const onChange = useCallback((value: number) => setPage(Math.min(Math.max(value, 1), maxPage)), [maxPage]);
+	useScrollInto('messages-navigation', optimisticMessages);
 
 	return (
 		<div className="w-full flex flex-col items-center gap-5">
 			<span className="text-center text-3xl font-bold mb-4 flex items-center gap-3">Mesajlar</span>
 			<div className="w-full flex flex-col">
-				{isLoading && !shownData && (
+				{isLoading && !optimisticMessages && !error && (
 					<div className="py-20 flex flex-col items-center justify-center opacity-50">
 						<Icon icon={faSpinner} size="3x" spin/>
 						<span className="mt-4 text-lg">Mesajlar yükleniyor...</span>
 					</div>
 				)}
-				{shownData && (
+				{optimisticMessages && (
 					<div className="flex flex-col gap-6">
-						{shownData.data.map((item, index) => (
-							<Message key={index} item={item}/>
+						{optimisticMessages.data.map((item, index) => (
+							<Message key={index} message={item}/>
 						))}
+						{optimisticMessages.data.length === 0 && (
+							<div className="w-full text-center py-10 text-gray-400">Gösterilecek mesaj bulunamadı.</div>
+						)}
 					</div>
 				)}
 				{error && (
-					<div className="w-full p-10 text-center text-red-400">
-						Bir hata oluştu: {error.message}
+					<div className="w-full flex items-center justify-center">
+						<span className="text-red-500">An error has occurred: {error.message}</span>
 					</div>
 				)}
-				<div className="flex justify-between items-center mt-8 pt-4 border-t border-gray-700">
-					<div className="flex items-center gap-3 text-sm text-gray-400">
-						<span>Sayfa Boyutu:</span>
-						{pageSizeOptions.map(size => (
-							<button
-								key={size}
-								onClick={() => setPageSize(size)}
-								className={`px-2 py-1 rounded ${size === pageSize ? 'bg-blue-600 text-white' : 'hover:bg-gray-700'}`}
-							>
-								{size}
-							</button>
-						))}
-					</div>
-					<div className="flex items-center gap-3">
-						{shownData && isLoading && <Icon icon={faSpinner} size="3x" spin/>}
-						<Navigation
-							id="events-navigation"
-							value={page}
-							min={1}
-							max={maxPage}
-							onPrevious={onPrevious}
-							onNext={onNext}
-							onChange={onChange}
-						/>
-					</div>
-				</div>
+				<Pagination
+					id="messages-navigation"
+					page={page}
+					size={pageSize}
+					options={pageSizeOptions}
+					totalCount={optimisticMessages?.total_count}
+					loading={optimisticMessages !== null && isLoading}
+					onPageChange={setPage}
+					onPageSizeChange={(size) => { setPageSize(size as PageSizeOption); setPage(1); }}
+				/>
 			</div>
 		</div>
 	);
@@ -131,104 +89,58 @@ function Notes() {
 	const [debouncedPage] = useDebounce(page, 200);
 	const [pageSize, setPageSize] = useState<PageSizeOption>(10);
 
-	const [shownData, setShownData] = useState<MessageResponse | null>(null);
-
-	const { data, error, isLoading } = useSWRImmutable<MessageResponse>(`/api/player/notes?page=${debouncedPage}&fetch_size=${pageSize}`,
-		fetcher
-	);
-
+	const [optimisticNotes, setOptimisticNotes] = useState<MessageResponse | null>(null);
+	const { data: notes, error, isLoading } = useSWRImmutable<MessageResponse>(`/api/player/notes?page=${debouncedPage}&fetch_size=${pageSize}`, fetcher);
 	useSWRImmutable(`/api/player/notes?page=${debouncedPage + 1}&fetch_size=${pageSize}`, fetcher);
 
 	useEffect(() => {
-		if (data) setShownData(data);
-	}, [data]);
+		if (notes) setOptimisticNotes(notes);
+	}, [notes]);
 
-	const maxPage = useMemo(() =>
-		Math.ceil((shownData?.total_count ?? 1) / pageSize),
-		[pageSize, shownData?.total_count]
-	);
-
-	useEffect(() => {
-		if (page > maxPage && maxPage > 0) setPage(maxPage);
-	}, [page, maxPage]);
-
-	const lastLength = useRef(0);
-
-	useEffect(() => {
-		if (shownData?.data.length) {
-			if (lastLength.current !== 0) {
-				setTimeout(() => {
-					document.getElementById('events-navigation')?.scrollIntoView({
-						block: 'end',
-						behavior: 'smooth',
-					});
-				}, 50);
-			}
-			lastLength.current = shownData.data.length;
-		}
-	}, [shownData?.data.length]);
-
-	const onNext = useCallback(() => setPage((p) => Math.min(p + 1, maxPage)), [maxPage]);
-	const onPrevious = useCallback(() => setPage((p) => Math.max(p - 1, 1)), []);
-	const onChange = useCallback((value: number) => setPage(Math.min(Math.max(value, 1), maxPage)), [maxPage]);
+	useScrollInto('notes-navigation', optimisticNotes);
 
 	return (
 		<div className="w-full flex flex-col items-center gap-5">
-			<h1 className="text-center text-3xl font-bold mb-4 flex items-center gap-3">
-				Notlar
-			</h1>
-
+			<span className="text-center text-3xl font-bold mb-4 flex items-center gap-3">Notlar</span>
 			<div className="w-full flex flex-col">
-				{isLoading && !shownData && (
+				{isLoading && !optimisticNotes && !error && (
 					<div className="py-20 flex flex-col items-center justify-center opacity-50">
 						<Icon icon={faSpinner} size="3x" spin/>
 						<span className="mt-4 text-lg">Notlar yükleniyor...</span>
 					</div>
 				)}
-				{shownData && (
+				{optimisticNotes && (
 					<div className="flex flex-col gap-6">
-						{shownData.data.map((item, index) => (
-							<Message key={index} item={item}/>
+						{optimisticNotes.data.map((item, index) => (
+							<Message key={index} message={item}/>
 						))}
+						{optimisticNotes.data.length === 0 && (
+							<div className="w-full text-center py-10 text-gray-400">Gösterilecek not bulunamadı.</div>
+						)}
 					</div>
 				)}
 				{error && (
-					<div className="w-full p-10 text-center text-red-400">
-						Bir hata oluştu: {error.message}
+					<div className="w-full flex items-center justify-center">
+						<span className="text-red-500">An error has occurred: {error.message}</span>
 					</div>
 				)}
-				<div className="flex justify-between items-center mt-8 pt-4 border-t border-gray-700">
-					<div className="flex items-center gap-3 text-sm text-gray-400">
-						<span>Sayfa Boyutu:</span>
-						{pageSizeOptions.map(size => (
-							<button
-								key={size}
-								onClick={() => setPageSize(size)}
-								className={`px-2 py-1 rounded ${size === pageSize ? 'bg-blue-600 text-white' : 'hover:bg-gray-700'}`}
-							>
-								{size}
-							</button>
-						))}
-					</div>
-					<div className="flex items-center gap-3">
-						{shownData && isLoading && <Icon icon={faSpinner} size="3x" spin/>}
-						<Navigation
-							id="events-navigation"
-							value={page}
-							min={1}
-							max={maxPage}
-							onPrevious={onPrevious}
-							onNext={onNext}
-							onChange={onChange}
-						/>
-					</div>
-				</div>
+				<Pagination
+					id="notes-navigation"
+					page={page}
+					size={pageSize}
+					options={pageSizeOptions}
+					totalCount={optimisticNotes?.total_count}
+					loading={optimisticNotes !== null && isLoading}
+					onPageChange={setPage}
+					onPageSizeChange={(size) => { setPageSize(size as PageSizeOption); setPage(1); }}
+				/>
 			</div>
 		</div>
 	);
 }
 
-function Message({ item }: { item: MessageType }) {
+function Message({ message }: { message: MessageData }) {
+	// todo: tailwind bunu nasıl yakalıyor la?
 	const severityStyles: Record<string, string> = {
     none: 'border-l-gray-500',
     minor: 'border-l-blue-500',
@@ -236,8 +148,7 @@ function Message({ item }: { item: MessageType }) {
     high: 'border-l-orange-500 ',
   };
 
-  const currentSeverity = item.severity ? String(item.severity).toLowerCase() : 'none';
-
+  const currentSeverity = message.severity ? message.severity.toLowerCase() : 'none';
   const activeStyle = severityStyles[currentSeverity];
 
   return (
@@ -245,48 +156,41 @@ function Message({ item }: { item: MessageType }) {
       <div className="flex flex-wrap items-center justify-between gap-4 text-xs uppercase tracking-wider font-semibold opacity-80">
         <div className="flex items-center gap-2">
           <Icon icon={faUserShield} className="text-blue-400" />
-          <span>Admin: <span className="text-white">{item.adminckey}</span></span>
+          <span>Admin: <span className="text-white">{message.adminckey}</span></span>
         </div>
-
         <div className="flex items-center gap-2">
           <Icon icon={faCalendarAlt} />
-          <span>{new Date(item.timestamp).toLocaleDateString('tr-TR')} - {item.days_passed} gün önce</span>
+          <span>{new Date(message.timestamp).toLocaleDateString('tr-TR')} - {message.days_passed} gün önce</span>
         </div>
       </div>
-
       <div className="text-sm leading-relaxed text-gray-200 break-words whitespace-pre-wrap italic bg-black/20 p-3 rounded">
-        {item.text}
+        {message.text}
       </div>
-
       <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400 border-t border-white/5 pt-2">
-        {item.server && (
+        {message.server && (
           <div className="flex items-center gap-1">
-            <span className="font-bold">Server:</span> {item.server}
+            <span className="font-bold">Server:</span> {message.server}
           </div>
         )}
-
-        {item.round_id && (
-          <Link href={`/rounds/${item.round_id}`} className="flex items-center gap-1">
+        {message.round_id && (
+          <Link href={`/rounds/${message.round_id}`} className="flex items-center gap-1 hover:underline">
             <Icon icon={faLayerGroup} size="xs" />
-            <span className="font-bold">Round:</span> #{item.round_id}
+            <span className="font-bold">Round:</span> #{message.round_id}
           </Link>
         )}
-
-        {item.playtime !== null && (
+        {message.playtime !== null && (
           <div className="flex items-center gap-1">
             <Icon icon={faClock} size="xs" />
-            <span>Playtime: {Math.floor(item.playtime / 60)}s</span>
+            <span className="font-bold">Oynama Süresi:</span> {Math.floor(message.playtime / 60)} saat
           </div>
         )}
-
-        {item.severity && (
+        {message.severity && (
           <div className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded bg-white/5">
             <Icon icon={faExclamationTriangle} size="xs" />
-            <span className="uppercase">{item.severity}</span>
+            <span className="uppercase">{message.severity}</span>
           </div>
         )}
       </div>
-
     </div>
   );
 }

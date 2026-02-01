@@ -33,9 +33,7 @@ export default function RoundSearch() {
 	useSWRImmutable(`/api/rounds?page=${debouncedPage + 1}&fetch_size=${pageSize}${Number(input) ? `&round_id=${input}` : ''}`, fetcher);
 
 	useEffect(() => {
-		if (rounds) {
-			setOptimisticRounds(rounds);
-		}
+		if (rounds) setOptimisticRounds(rounds);
 	}, [rounds]);
 
 	const onInput = useCallback(() => {
@@ -94,7 +92,7 @@ export default function RoundSearch() {
 					options={pageSizeOptions}
 					totalCount={optimisticRounds?.total_count}
 					loading={optimisticRounds !== null && isLoading}
-					onPageChange={(page) => setPage(page)}
+					onPageChange={setPage}
 					onPageSizeChange={(size) => { setPageSize(size as PageSizeOption); setPage(1); }}
 				/>
 			</div>
