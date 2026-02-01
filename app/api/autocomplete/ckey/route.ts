@@ -1,9 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import * as z from 'zod';
 
+import { buildUrl } from '@/app/lib/data';
 import { get } from '@/app/lib/headers';
 
-const endpoint = process.env.API_URL + '/v2/autocomplete/ckey';
+const endpoint = `${process.env.API_URL}/v2/autocomplete/ckey`;
 
 const QuerySchema = z.object({
 	ckey: z.string().min(1).max(32),
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
 	}
 
 	try {
-		const response = await get(`${endpoint}?ckey=${data.ckey}`, 3_600);
+		const response = await get(buildUrl(endpoint, { ckey: data.ckey }), 3_600);
 
 		if (!response.ok) {
 			throw new Error('Failed to fetch');

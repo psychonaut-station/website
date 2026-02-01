@@ -3,9 +3,10 @@ import { getServerSession } from 'next-auth';
 import * as z from 'zod';
 
 import { authOptions } from '@/app/lib/auth';
+import { buildUrl } from '@/app/lib/data';
 import { get } from '@/app/lib/headers';
 
-const endpoint = process.env.API_URL + '/v2/player/check_friends';
+const endpoint = `${process.env.API_URL}/v2/player/check_friends`;
 
 const QuerySchema = z.object({
 	friend: z.string().min(1).max(32),
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
 	const { friend } = data;
 
 	try {
-		const response = await get(`${endpoint}?ckey=${ckey}&friend=${friend}`, 3_600);
+		const response = await get(buildUrl(endpoint, { ckey, friend }), 3_600);
 
 		if (!response.ok) {
 			throw new Error('Failed to fetch');

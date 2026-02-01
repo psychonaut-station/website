@@ -1,9 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import * as z from 'zod';
 
+import { buildUrl } from '@/app/lib/data';
 import { get } from '@/app/lib/headers';
 
-const endpoint = process.env.API_URL + '/v2/events/citations';
+const endpoint = `${process.env.API_URL}/v2/events/citations`;
 
 const QuerySchema = z.object({
 	fetch_size: z.string().refine(val => {
@@ -27,10 +28,10 @@ export async function GET(request: NextRequest) {
 		return new NextResponse('Bad Request', { status: 400 });
 	}
 
-	const { fetch_size: fetchSize, page } = data;
+	const { fetch_size, page } = data;
 
 	try {
-		const response = await get(`${endpoint}?fetch_size=${fetchSize}&page=${page}`, 3_600);
+		const response = await get(buildUrl(endpoint, { fetch_size, page }), 3_600);
 
 		if (!response.ok) {
 			throw new Error('Failed to fetch');

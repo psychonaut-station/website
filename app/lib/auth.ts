@@ -1,10 +1,11 @@
 import type { NextAuthOptions } from 'next-auth';
 import Discord from 'next-auth/providers/discord';
 
+import { buildUrl } from '@/app/lib/data';
 import { get } from '@/app/lib/headers';
 
-const serverEndpoint = process.env.API_URL + '/v2/server';
-const ckeyEndpoint = process.env.API_URL + '/v2/player/discord?discord_id=';
+const serverEndpoint = `${process.env.API_URL}/v2/server`;
+const ckeyEndpoint = `${process.env.API_URL}/v2/player/discord`;
 
 const clientId = process.env.AUTH_DISCORD_ID!;
 const clientSecret = process.env.AUTH_DISCORD_SECRET!;
@@ -39,7 +40,7 @@ export const authOptions: NextAuthOptions = {
 
 			if (profile) {
 				try {
-					const response = await get(`${ckeyEndpoint}${profile.id}`);
+					const response = await get(buildUrl(ckeyEndpoint, { discord_id: profile.id }));
 
 					if (response.status === 200) {
 						const ckey = await response.json();

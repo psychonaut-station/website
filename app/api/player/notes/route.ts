@@ -3,16 +3,17 @@ import { getServerSession } from 'next-auth';
 import * as z from 'zod';
 
 import { authOptions } from '@/app/lib/auth';
+import { buildUrl } from '@/app/lib/data';
 import { get } from '@/app/lib/headers';
 
-const endpoint = process.env.API_URL + '/v2/player/notes';
+const endpoint = `${process.env.API_URL}/v2/player/notes`;
 
 const QuerySchema = z.object({
 	fetch_size: z.string().refine(val => {
 		const num = Number(val);
 		return !isNaN(num) && num >= 1 && num <= 20;
 	}, {
-		message: 'fetch_size must be a number between 1 and 40',
+		message: 'fetch_size must be a number between 1 and 20',
 	}),
 	page: z.string().refine(val => {
 		const num = Number(val);
@@ -36,10 +37,10 @@ export async function GET(request: NextRequest) {
 		return new NextResponse('Unauthorized', { status: 401 });
 	}
 
-	const { fetch_size: fetchSize, page } = data;
+	const { fetch_size, page } = data;
 
 	try {
-		const response = await get(`${endpoint}?ckey=${ckey}&fetch_size=${fetchSize}&page=${page}`, 3_600);
+		const response = await get(buildUrl(endpoint, { ckey, fetch_size, page }), 3_600);
 
 		if (!response.ok) {
 			throw new Error('Failed to fetch');

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { get } from '@/app/lib/headers';
 
-const endpoint = process.env.API_URL + '/v2/server';
+const endpoint = `${process.env.API_URL}/v2/server`;
 
 export async function GET() {
 	try {
