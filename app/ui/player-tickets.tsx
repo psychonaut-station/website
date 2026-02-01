@@ -21,7 +21,7 @@ type TicketResponse = {
 const pageSizeOptions = [5, 10, 15, 20] as const;
 type PageSizeOption = (typeof pageSizeOptions)[number];
 
-export default function Tickets({ ckey }: { ckey: string }) {
+export default function Tickets({ ckey }: { ckey: string; }) {
   const [page, setPage] = useState(1);
   const [debouncedPage] = useDebounce(page, 200);
   const [pageSize, setPageSize] = useState<PageSizeOption>(10);

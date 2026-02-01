@@ -16,7 +16,7 @@ export default function Bans() {
   return (
 		<div className='w-full flex-1 flex flex-col items-center gap-5 pt-8 px-4 sm:px-8 md:px-14 lg:px-56 xl:px-80 ultrawide:px-[30rem] huge:px-[40rem]'>
       <div className="w-full flex flex-col items-center gap-5">
-        <span className="text-center text-2xl font-bold mb-2 flex items-center gap-3">
+        <span className="text-center text-3xl font-bold mb-2 flex items-center gap-3">
           Geçmiş Banlar
         </span>
         <div className="w-full flex flex-col">
