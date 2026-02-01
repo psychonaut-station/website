@@ -1,5 +1,6 @@
 import { faAngleLeft, faAngleRight, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx/lite';
 import { ChangeEvent, useCallback, useEffect, useMemo } from 'react';
 
 import { NumberInput } from '@/app/ui/input';
@@ -103,7 +104,7 @@ export function Pagination({
 		<div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-4">
 			<div className="ml-2 space-x-4" title="Sayfa boyutu">
 				{options.map(option => (
-					<span key={option} className={`${option === size && 'underline'} hover:underline cursor-pointer`} onClick={() => onPageSizeChange?.(option)}>{option}</span>
+					<span key={option} className={clsx(option === size && 'underline', 'hover:underline cursor-pointer')} onClick={() => onPageSizeChange?.(option)}>{option}</span>
 				))}
 			</div>
 			<div className="flex items-center gap-1">

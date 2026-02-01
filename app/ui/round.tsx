@@ -2,6 +2,7 @@
 
 import '@/app/styles/round-report.css';
 
+import clsx from 'clsx/lite';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect } from 'react';
@@ -203,7 +204,17 @@ function Logs({ logs }: LogsProps) {
 			<span className="text-center text-3xl font-bold">Loglar</span>
 			<div className="flex flex-wrap justify-center gap-2 px-2 py-6 sm:px-14 md:px-18 xl:px-60">
 				{logs.map(({ name, src }, index) => (
-					<Link key={index} href={src || '#'} prefetch={false} className={`border ${src ? 'border-green-500 text-green-500 hover:bg-green-500' : 'border-gray-400 text-gray-400 hover:bg-gray-400 cursor-not-allowed'} hover:text-black px-2 py-1 rounded-[.25rem] text-sm transition-colors`}>{name}</Link>
+					<Link
+						key={index}
+						href={src || '#'}
+						prefetch={false}
+						className={clsx(
+							'border hover:text-black px-2 py-1 rounded-[.25rem] text-sm transition-colors',
+							src && 'border-green-500 text-green-500 hover:bg-green-500' || 'border-gray-400 text-gray-400 hover:bg-gray-400 cursor-not-allowed',
+						)}
+					>
+						{name}
+					</Link>
 				))}
 			</div>
 		</div>

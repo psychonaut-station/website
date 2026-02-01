@@ -2,6 +2,7 @@
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx/lite';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { Line, Tooltip, TooltipProps, XAxis, YAxis } from 'recharts';
@@ -69,7 +70,16 @@ function Overview({ overview }: { overview: OverviewData[] }) {
 					<h2 className="mb-4 text-white text-lg font-bold text-center md:text-base">Kategoriler</h2>
 					<ul className="space-y-2 [&>li]:px-4 [&>li]:py-2">
 						{Object.entries(overviewCategories).map(([category, name]) => (
-							<li key={category} className={`${selectedCategory === category && 'bg-gray-500'} text-center cursor-pointer rounded-lg text-white hover:bg-gray-500 transition-colors text-nowrap`} onClick={() => setSelectedCategory(category as OverviewCategory)}>{name}</li>
+							<li
+								key={category}
+								className={clsx(
+									selectedCategory === category && 'bg-gray-500',
+									'text-center cursor-pointer rounded-lg text-white hover:bg-gray-500 transition-colors text-nowrap',
+								)}
+								onClick={() => setSelectedCategory(category as OverviewCategory)}
+							>
+								{name}
+							</li>
 						))}
 					</ul>
 				</div>
@@ -204,7 +214,16 @@ function Events() {
 				<h2 className="mb-4 text-white text-lg font-bold text-center md:text-base">Kategoriler</h2>
 				<ul className="space-y-2 [&>li]:px-4 [&>li]:py-2">
 					{Object.entries(eventCategories).map(([category, name]) => (
-						<li key={category} className={`${selectedCategory === category && 'bg-gray-500'} text-center cursor-pointer rounded-lg text-white hover:bg-gray-500 transition-colors text-nowrap`} onClick={() => setSelectedCategory(category as EventCategory)}>{name}</li>
+						<li
+							key={category}
+							className={clsx(
+								selectedCategory === category && 'bg-gray-500',
+								'text-center cursor-pointer rounded-lg text-white hover:bg-gray-500 transition-colors text-nowrap',
+							)}
+							onClick={() => setSelectedCategory(category as EventCategory)}
+						>
+							{name}
+						</li>
 					))}
 				</ul>
 			</div>

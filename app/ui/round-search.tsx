@@ -2,6 +2,7 @@
 
 import { faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx/lite';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import useSWRImmutable from 'swr/immutable';
@@ -62,7 +63,7 @@ export default function RoundSearch() {
 			<div className="w-full flex justify-center">
 				<div className="flex items-center px-3 py-2 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-[.25rem] text-center">
 					<input className="h-full flex-1 bg-transparent outline-none" type="number" ref={inputRef} onInput={onInput} placeholder="Round ara"></input>
-					<div className="w-5 flex justify-center"><Icon icon={isLoading ? faSpinner : faSearch} spin={isLoading} className={`${isLoading && 'opacity-50'} text-white align-middle`} /></div>
+					<div className="w-5 flex justify-center"><Icon icon={isLoading ? faSpinner : faSearch} spin={isLoading} className={clsx(isLoading && 'opacity-50', 'text-white align-middle')} /></div>
 				</div>
 			</div>
 			<div className="w-full flex-1 flex flex-col gap-4 justify-between px-2 sm:px-4 rounded-xl">

@@ -5,5 +5,8 @@
 		"**/error.tsx": "${dirname}/error.tsx",
 		"**/not-found.tsx": "${dirname}/not-found.tsx",
 		"**/layout.tsx": "${dirname}/layout.tsx",
-	}
+	},
+  "tailwindCSS.experimental.classRegex": [
+    ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ]
 }

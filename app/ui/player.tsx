@@ -12,6 +12,7 @@ import {
 	faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx/lite';
 import dayjs from 'dayjs';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -320,7 +321,7 @@ function ActivityTooltip({ active, payload, label, slope }: TooltipContentProps<
 			<div className="flex gap-2">
 				<span className="text-[#64748B]">{rounds.toString()} round</span>
 				{average > 0 && (
-					<span className={`${rounds > average ? 'text-green-300' : 'text-red-300'} text-opacity-50 transition-colors`}>{(Math.round(average * 10) / 10).toString().replace('.', ',')} ort.</span>
+					<span className={clsx(rounds > average && 'text-green-300' || 'text-red-300', 'text-opacity-50 transition-colors')}>{(Math.round(average * 10) / 10).toString().replace('.', ',')} ort.</span>
 				)}
 				{slope !== 0 && (slope > 0 ? (
 					<span className="text-green-300 text-opacity-50"><Icon icon={faArrowUp} /></span>

@@ -2,6 +2,7 @@
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx/lite';
 import { useEffect, useRef } from 'react';
 
 import useServer from '@/app/hooks/useServer';
@@ -59,7 +60,7 @@ function Server({ status }: ServerProps) {
 		<div className="w-full flex flex-col p-4 bg-white shadow-slate-200 shadow-glow rounded-xl text-sm font-light text-gray-500 [&>span>span]:text-black">
 			<div className="flex justify-between uppercase">
 				<span className="text-xl font-extrabold">{status.name}</span>
-				<span className={`${status.server_status ? 'bg-lime-400' : 'bg-red-400'} self-center px-2 rounded-xl text-white leading-7`}>{status.server_status ? 'Aktif' : 'Kapalı'}</span>
+				<span className={clsx(status.server_status && 'bg-lime-400' || 'bg-red-400', 'self-center px-2 rounded-xl text-white leading-7')}>{status.server_status ? 'Aktif' : 'Kapalı'}</span>
 			</div>
 			{status.server_status ? (
 				<>
