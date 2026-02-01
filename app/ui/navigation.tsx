@@ -1,6 +1,6 @@
-import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faAngleRight, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { ChangeEvent, useCallback } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo } from 'react';
 
 import { NumberInput } from '@/app/ui/input';
 
@@ -53,6 +53,63 @@ export function Navigation({ onPrevious, onNext, onChange, min, max, value, id }
 			</div>
 			<span className="inline-block" onClick={handleNext}><Icon icon={faAngleRight} /></span>
 			<div id={id} className="relative top-6"></div>
+		</div>
+	);
+}
+
+type PaginationProps = {
+	id: string;
+	page: number;
+	size: number;
+	totalCount: number | undefined;
+	options?: readonly number[];
+	loading: boolean;
+	onPageChange?: (page: number) => boolean | void;
+	onPageSizeChange?: (size: number) => boolean | void;
+};
+
+export function Pagination({
+	id,
+	page,
+	size,
+	totalCount = 0,
+	options = [10, 20, 30, 40],
+	loading = false,
+	onPageChange,
+	onPageSizeChange,
+}: PaginationProps) {
+	const maxPage = useMemo(() => Math.max(Math.ceil(totalCount / size), 1), [size, totalCount]);
+
+	const onNext = useCallback(() => {
+		const newPage = Math.min(page + 1, maxPage);
+		if (newPage !== page) onPageChange?.(newPage);
+	}, [page, maxPage, onPageChange]);
+
+	const onPrevious = useCallback(() => {
+		const newPage = Math.max(page - 1, 1);
+		if (newPage !== page) onPageChange?.(newPage);
+	}, [page, onPageChange]);
+
+	const onChange = useCallback((value: number) => {
+		const newPage = Math.min(Math.max(value, 1), maxPage);
+		if (newPage !== page) onPageChange?.(newPage);
+	}, [page, maxPage, onPageChange]);
+
+	useEffect(() => {
+		if (page > maxPage) onPageChange?.(maxPage);
+	}, [page, maxPage, onPageChange]);
+
+	return (
+		<div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-4">
+			<div className="ml-2 space-x-4" title="Sayfa boyutu">
+				{options.map(option => (
+					<span key={option} className={`${option === size && 'underline'} hover:underline cursor-pointer`} onClick={() => onPageSizeChange?.(option)}>{option}</span>
+				))}
+			</div>
+			<div className="flex items-center gap-1">
+				{loading && <span className="w-5 flex justify-center opacity-50"><Icon icon={faSpinner} spin /></span>}
+				<Navigation id={id} value={page} min={1} max={maxPage} onPrevious={onPrevious} onNext={onNext} onChange={onChange} />
+			</div>
 		</div>
 	);
 }

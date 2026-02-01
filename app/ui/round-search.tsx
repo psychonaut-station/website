@@ -3,14 +3,15 @@
 import { faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { useDebounce } from 'use-debounce';
 
+import { useScrollInto, useScrollIntoOnce } from '@/app/hooks/useScrollInto';
 import { RoundData } from '@/app/lib/definitions';
 import fetcher from '@/app/lib/fetcher';
 import { relativeTime } from '@/app/lib/time';
-import { Navigation } from '@/app/ui/navigation';
+import { Pagination } from '@/app/ui/navigation';
 
 const pageSizeOptions = [20, 40, 80] as const;
 
@@ -21,17 +22,21 @@ export default function RoundSearch() {
 	const timeoutRef = useRef(0);
 
 	const [input, setInput] = useState('');
+
 	const [page, setPage] = useState(1);
+	const [debouncedPage] = useDebounce(page, 200);
 	const [pageSize, setPageSize] = useState<PageSizeOption>(20);
 
-	const [debouncedPage] = useDebounce(page, 200);
-
 	type Data = { data: RoundData[]; total_count: number; };
-
-	const [shownData, setShownData] = useState<Data | null>(null);
-	const { data, error, isLoading } = useSWRImmutable<Data>(`/api/rounds?page=${debouncedPage}&fetch_size=${pageSize}${Number(input) ? `&round_id=${input}` : ''}`, fetcher);
-
+	const [optimisticRounds, setOptimisticRounds] = useState<Data | null>(null);
+	const { data: rounds, error, isLoading } = useSWRImmutable<Data>(`/api/rounds?page=${debouncedPage}&fetch_size=${pageSize}${Number(input) ? `&round_id=${input}` : ''}`, fetcher);
 	useSWRImmutable(`/api/rounds?page=${debouncedPage + 1}&fetch_size=${pageSize}${Number(input) ? `&round_id=${input}` : ''}`, fetcher);
+
+	useEffect(() => {
+		if (rounds) {
+			setOptimisticRounds(rounds);
+		}
+	}, [rounds]);
 
 	const onInput = useCallback(() => {
 		clearTimeout(timeoutRef.current);
@@ -46,49 +51,13 @@ export default function RoundSearch() {
 	}, []);
 
 	useEffect(() => {
-		if (data) {
-			setShownData(data);
-		}
-	}, [data]);
-
-	const maxPage = useMemo(() => Math.ceil((shownData?.total_count ?? 1) / pageSize), [pageSize, shownData?.total_count]);
-
-	useEffect(() => {
-		if (page > maxPage) {
-			setPage(maxPage);
-		}
-		if(!page && maxPage) {
-			setPage(1);
-		}
-	}, [page, maxPage]);
-
-	useEffect(() => {
 		setTimeout(() => {
 			inputRef.current?.focus();
 		}, 1);
 	}, []);
 
-	useEffect(() => {
-		setTimeout(() => {
-			document.getElementById('rounds-navigation')?.scrollIntoView({
-				block: 'end',
-				inline: 'nearest',
-				behavior: 'smooth',
-			});
-		}, 1);
-	}, [shownData]);
-
-	const onNext = useCallback(() => {
-		setPage((prev) => Math.min(prev + 1, maxPage));
-	}, [maxPage]);
-
-	const onPrevious = useCallback(() => {
-		setPage((prev) => Math.max(prev - 1, 1));
-	}, []);
-
-	const onChange = useCallback((value: number) => {
-		setPage(Math.min(Math.max(value, 1), maxPage));
-	}, [maxPage]);
+	useScrollIntoOnce('rounds-navigation', !!optimisticRounds);
+	useScrollInto('rounds-navigation', optimisticRounds);
 
 	return (
 		<div className="w-full flex-1 flex flex-col gap-5">
@@ -99,16 +68,16 @@ export default function RoundSearch() {
 				</div>
 			</div>
 			<div className="w-full flex-1 flex flex-col gap-4 justify-between px-2 sm:px-4 rounded-xl">
-				{isLoading && !shownData && !error && (
+				{isLoading && !optimisticRounds && !error && (
 					<div className="w-full flex-1 flex items-center justify-center">
 						<div className="w-12 h-12 flex items-center justify-center opacity-50">
 							<Icon icon={faSpinner} size="3x" spin />
 						</div>
 					</div>
 				)}
-				{shownData && (
+				{optimisticRounds && (
 					<div className="flex flex-wrap justify-center gap-4 px-2 pt-1">
-						{shownData.data.map((item, index) => (
+						{optimisticRounds.data.map((item, index) => (
 							<Round key={index} round={item} />
 						))}
 					</div>
@@ -118,15 +87,16 @@ export default function RoundSearch() {
 						<span className="text-red-500">An error has occurred: {error.message}</span>
 					</div>
 				)}
-				<div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-					<div className="flex space-x-4" title="Sayfa boyutu">
-						{pageSizeOptions.map(size => (<span key={size} className={`${size === pageSize && 'underline'} hover:underline cursor-pointer`} onClick={() => setPageSize(size)}>{size}</span>))}
-					</div>
-					<div className="flex items-center gap-1">
-						{shownData && isLoading && <span className="w-5 flex justify-center opacity-50"><Icon icon={faSpinner} spin /></span>}
-						<Navigation id="rounds-navigation" value={page} min={1} max={maxPage} onPrevious={onPrevious} onNext={onNext} onChange={onChange} />
-					</div>
-				</div>
+				<Pagination
+					id="rounds-navigation"
+					page={page}
+					size={pageSize}
+					options={pageSizeOptions}
+					totalCount={optimisticRounds?.total_count}
+					loading={optimisticRounds !== null && isLoading}
+					onPageChange={(page) => setPage(page)}
+					onPageSizeChange={(size) => { setPageSize(size as PageSizeOption); setPage(1); }}
+				/>
 			</div>
 		</div>
 	);
