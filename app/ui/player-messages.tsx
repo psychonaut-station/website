@@ -22,7 +22,7 @@ type PageSizeOption = (typeof pageSizeOptions)[number];
 
 export default function PlayerMessages() {
 	return (
-		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 sm:px-14 lg:px-[13.5rem]">
+		<div className="w-full flex-1 flex flex-col items-center gap-5 pt-8 px-4 sm:px-8 md:px-14 lg:px-56 xl:px-80 ultrawide:px-[30rem] huge:px-[40rem]">
 			<Messages/>
 			<Notes/>
 		</div>
@@ -160,10 +160,10 @@ function Message({ message }: { message: MessageData }) {
         </div>
         <div className="flex items-center gap-2">
           <Icon icon={faCalendarAlt} />
-          <span>{new Date(message.timestamp).toLocaleDateString('tr-TR')} - {message.days_passed} gün önce</span>
+          <span>{new Date(message.timestamp).toLocaleString('tr-TR')} - {message.days_passed} gün önce</span>
         </div>
       </div>
-      <div className="text-sm leading-relaxed text-gray-200 break-words whitespace-pre-wrap italic bg-black/20 p-3 rounded">
+      <div className="text-sm leading-relaxed text-gray-200 break-words whitespace-pre-wrap italic bg-black/20 p-3 rounded border border-white/5">
         {message.text}
       </div>
       <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400 border-t border-white/5 pt-2">
@@ -173,7 +173,7 @@ function Message({ message }: { message: MessageData }) {
           </div>
         )}
         {message.round_id && (
-          <Link href={`/rounds/${message.round_id}`} className="flex items-center gap-1 hover:underline">
+          <Link href={`/rounds/${message.round_id}`} className="flex items-center gap-1 hover:text-white transition-colors">
             <Icon icon={faLayerGroup} size="xs" />
             <span className="font-bold">Round:</span> #{message.round_id}
           </Link>

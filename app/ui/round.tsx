@@ -115,11 +115,8 @@ function Players({ antagonists, stats }: PlayersProps) {
 				<span className="text-center text-3xl font-bold">Oyuncular</span>
 				<div className="flex flex-wrap justify-center gap-2 px-2 py-6 sm:px-14 md:px-18 xl:px-60">
 					{sortedLiving.map(({ name, ckey: key, job, species, module }, index) => {
-						const department = job ? jobDepartments[job] : '';
-						const colorStyle = { '--color': departmentColors[department] ?? '#c5c5c5' } as React.CSSProperties;
-
+						const colorStyle = { '--color': departmentColors[jobDepartments[job ?? '']] ?? '#c5c5c5' } as React.CSSProperties;
 						const antagonist = antagonists.filter(player => player.key === key && player.name === name);
-
 						const ckey = key && key.toLowerCase().replace(/[^a-z0-9-_]/g, ''); // ckey in roundend log is infact not ckey
 
 						return (
