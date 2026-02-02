@@ -10,7 +10,6 @@ import { useDebounce } from 'use-debounce';
 import { useScrollInto } from '@/app/hooks/useScrollInto';
 import { Manifest } from '@/app/lib/definitions';
 import fetcher from '@/app/lib/fetcher';
-import { playerSpriteImageLoader } from '@/app/lib/image-loader';
 import { Pagination } from '@/app/ui/navigation';
 import PlayerSprite from '@/app/ui/player-sprite';
 
@@ -95,12 +94,10 @@ function Round({ manifest, ckey }: { manifest: Manifest, ckey: string }) {
     >
       <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-950/80 border border-white/10 flex-shrink-0 flex items-center justify-center">
         <PlayerSprite
-          imageSrc={`${ckey}/${encodeURI(manifest.character_name)}.png`}
-          direction={0}
-          scale={1.5}
-					targetArea={1}
+          ckey={ckey}
+          character={manifest.character_name}
 					job={manifest.job}
-					loader={playerSpriteImageLoader}
+          scale={1.5}
         />
       </div>
       <div className="flex-1 flex flex-col min-w-0">

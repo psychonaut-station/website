@@ -210,7 +210,7 @@ export type Friendship = {
 	id: number;
 	user_ckey: string;
 	friend_ckey: string;
-	status: string;
+	status: 'pending' | 'accepted' | 'declined' | 'removed';
 	created_at: string;
 	updated_at: string;
 };

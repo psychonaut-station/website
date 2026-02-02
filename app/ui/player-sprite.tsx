@@ -1,93 +1,75 @@
 'use client';
-import { ImageLoaderProps } from 'next/image';
-import { useEffect, useState } from 'react';
 
-import EmptyChracter from '@/app/images/empty-character.png';
+import { useEffect, useMemo, useRef } from 'react';
 
-enum Direction { Front = 0, Back = 1, Right = 2, Left = 3 }
-enum TargetArea { All = 0, Biometric = 1 }
+import placeholder from '@/app/images/empty-character.png';
+import { playerSpriteImageLoader } from '@/app/lib/image-loader';
 
-interface PlayerSpriteCanvasProps {
-  className?: string;
-  imageSrc: string;
-  direction: Direction | number;
-  frameSize?: number;
-  scale?: number;
-  targetArea?: TargetArea | number;
+export enum Direction { Front = 0, Back = 1, Right = 2, Left = 3 }
+enum Area { Full = 0, Biometric = 1 }
+
+const characterSize = 32;
+const biometricOffset = 7.5;
+
+type PlayerSpriteProps = {
+	ckey: string;
+	character?: string;
   job?: string;
-  loader?: (props: ImageLoaderProps) => string;
+  direction?: Direction;
+  scale?: number;
 }
 
-const PlayerSprite = ({
-  imageSrc,
-  direction,
-  frameSize = 32,
-  scale = 1,
-  targetArea = 0,
-  job,
-  loader
-}: PlayerSpriteCanvasProps) => {
-  const [emptyCharacter, setEmptyCharacter] = useState<string | null>(EmptyChracter.src);
-  const [area, setArea] = useState(targetArea);
-  const [src, setSrc] = useState<string>();
-
-  useEffect(() => {
-    const newSrc = loader ? loader({ src: imageSrc, width: frameSize * scale }) : imageSrc;
-		setSrc(newSrc);
-    setArea(targetArea);
-  }, [imageSrc, loader, frameSize, scale, targetArea]);
-
-  useEffect(() => {
-    if (job === 'Animal') {
-      setArea(TargetArea.All);
-    }
-  }, [job]);
+export default function PlayerSprite({ ckey, character, job, direction = Direction.Front, scale = 1 }: PlayerSpriteProps) {
+	const ref = useRef<HTMLDivElement>(null);
+	const src = useMemo(() => character && playerSpriteImageLoader({ src: `${ckey}/${encodeURI(character)}.png`, width: characterSize * scale }), [ckey, character, scale]);
+  const area = job === 'Animal' ? Area.Full : Area.Biometric;
 
   useEffect(() => {
     if (!src) return;
 
-    const testImg = new Image();
-    testImg.src = src;
+    const image = new Image();
+    image.src = src;
 
-    testImg.onload = () => {
-      setEmptyCharacter(null);
-    };
-
-    testImg.onerror = () => {
-      setEmptyCharacter(EmptyChracter.src);
+    image.onload = () => {
+      ref.current?.style.setProperty('background-image', `url(${src})`);
     };
   }, [src]);
 
-  let currentFrameSize = frameSize;
-  let currentScale = scale;
-  let x = 0;
-  let y = 0;
+	// eslint-disable-next-line prefer-const
+	let [offsetX, offsetY] = directionToOffset(direction);
+	let frameSize = characterSize;
+	let scaleFactor = scale;
 
-  if (area === TargetArea.Biometric) {
-    currentFrameSize /= 2;
-    x -= 7.5;
-    currentScale *= 2;
-  }
-
-  if (direction === Direction.Back) x -= 32;
-  if (direction === Direction.Right) y -= 32;
-  if (direction === Direction.Left) {
-    x -= 32;
-    y -= 32;
-  }
+	if (area === Area.Biometric) {
+		frameSize /= 2;
+		offsetX -= biometricOffset;
+		scaleFactor *= 2;
+	}
 
   return (
     <div
       className="inline-block bg-no-repeat pixelated"
+			ref={ref}
       style={{
-        transform: `scale(${currentScale})`,
-        width: currentFrameSize,
-        height: currentFrameSize,
-        backgroundImage: src ? (emptyCharacter ? `url(${src}), url(${emptyCharacter})` : `url(${src})`) : `url(${EmptyChracter.src})`,
-        backgroundPosition: `${x}px ${y}px`,
+        transform: `scale(${scaleFactor})`,
+        width: frameSize,
+        height: frameSize,
+        backgroundImage: `url(${placeholder.src})`,
+        backgroundPosition: `${offsetX}px ${offsetY}px`,
       }}
     />
   );
-};
+}
 
-export default PlayerSprite;
+function directionToOffset(direction: Direction): [number, number] {
+	switch (direction) {
+		case Direction.Front:
+			return [0, 0];
+		case Direction.Back:
+			return [-characterSize, 0];
+		case Direction.Right:
+			return [0, -characterSize];
+		case Direction.Left:
+			return [-characterSize, -characterSize];
+	}
+}

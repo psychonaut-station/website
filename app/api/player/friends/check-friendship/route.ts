@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 	const { friend } = data;
 
 	try {
-		const response = await get(buildUrl(endpoint, { ckey, friend }), 3_600);
+		const response = await get(buildUrl(endpoint, { ckey, friend }));
 
 		if (!response.ok) {
 			throw new Error('Failed to fetch');

@@ -1,12 +1,13 @@
 import { getServerSession } from 'next-auth';
 import { Suspense } from 'react';
 
-import Friends from '@/app/ui/player-friends';
 import { authOptions } from '@/app/lib/auth';
+import PlayerFriends from '@/app/ui/player-friends';
 
 async function FriendsPage() {
 	const session = await getServerSession(authOptions);
-	return <Friends ckey={session!.user!.ckey!}/>;
+	// proxy/auth.ts ensures user is authenticated before reaching here
+	return <PlayerFriends ckey={session!.user!.ckey!}/>;
 }
 
 export default async function Page() {
