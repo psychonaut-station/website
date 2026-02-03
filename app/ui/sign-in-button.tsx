@@ -3,16 +3,16 @@
 import { signIn, signOut, useSession } from 'next-auth/react';
 
 import Button from '@/app/ui/button';
-import DropdownMenu from '@/app/ui/dropdown';
+import Dropdown from '@/app/ui/dropdown';
 
 const menuItems = [
   { label: 'Hesabım', href: '/me' },
 	{ label: 'Arkadaşlar', href: '/me/friends' },
-	{ label: 'Geçmiş Roundlar', href: '/me/rounds' },
+	{ label: 'Roundlar', href: '/me/rounds' },
 	{ label: 'Banlar', href: '/me/bans' },
-	{ label: 'Ticketler', href: '/me/tickets' },
-	{ label: 'Admin Mesajları', href: '/me/admin-remarks' },
-	{ label: 'Çıkış Yap', func: async () => await signOut(), class: 'text-red-500 w-full'}
+	{ label: 'Ticketlar', href: '/me/tickets' },
+	{ label: 'Mesajlar', href: '/me/admin-remarks' },
+	{ label: 'Çıkış Yap', action: async () => await signOut(), class: 'text-red-500' }
 ];
 
 export default function SignInButton() {
@@ -23,8 +23,8 @@ export default function SignInButton() {
   }
 
 	if(session && session.user) {
-		return <DropdownMenu items={menuItems}><Button>{session.user.name}</Button></DropdownMenu>;
+		return <Dropdown items={menuItems}><Button>{session.user.name}</Button></Dropdown>;
 	}
 
-	return <button onClick={() => signIn('discord')}><Button>Giriş Yap</Button></button>;
+	return <Button onClick={() => signIn('discord')}>Giriş Yap</Button>;
 }
