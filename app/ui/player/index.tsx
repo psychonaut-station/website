@@ -19,7 +19,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Bar, Line, Tooltip, type TooltipContentProps, XAxis, YAxis } from 'recharts';
-import useSWRImmutable from 'swr/immutable';
+import useSWR from 'swr';
 
 import {
 	acceptFriend,
@@ -53,7 +53,7 @@ export default function Player({ player }: PlayerProps) {
 			<div className="max-w-full flex flex-col items-center gap-3">
 				<div className="w-full flex justify-center items-center">
 					<div className="relative">
-						<span className="block text-5xl font-bold overflow-hidden text-ellipsis whitespace-nowrap max-w-[80vw]">
+						<span className="text-5xl font-bold overflow-hidden text-ellipsis whitespace-nowrap max-w-[80vw]">
 							{player.byond_key || player.ckey}
 						</span>
 						<FriendButton player={player} />
@@ -413,101 +413,73 @@ function BanHistory({ bans }: BanHistoryProps) {
 	);
 }
 
-function FriendButton({ player }: PlayerProps) {
+function FriendButton({ player }: { player: Player; }) {
 	const { data: session } = useSession();
-	const [friendship, setFriendship] = useState<Friendship | null | undefined>(
-		undefined,
-	);
+	const ckey = session?.user?.ckey;
 
-	const { data: checked_friendship, isLoading, error } = useSWRImmutable<Friendship>(
-		`/api/player/friends/check-friendship?friend=${player.ckey}`,
-		fetcher
-	);
+	const { data: friendship, isLoading, error, mutate } = useSWR<Friendship | null>(`/api/player/friends/check-friendship?friend=${player.ckey}`, fetcher, {
+		isPaused: () => !ckey,
+	});
+
+	// workaround for SWR not calling the API after session loads
+	const shouldFetch = useRef(false);
 
 	useEffect(() => {
-		if (checked_friendship) {
-			setFriendship(checked_friendship);
+		if (!shouldFetch.current && ckey) {
+			shouldFetch.current = true;
+			mutate();
 		}
-	}, [checked_friendship]);
+	}, [ckey, mutate]);
 
-	if (!session?.user?.ckey) return <div></div>;
-	if (friendship === undefined) return <div></div>;
+	if (!ckey) {
+		return <></>;
+	}
 
-	if(error) return <div></div>;
+	if (error) {
+		console.error('Error fetching friendship status:', error);
+	}
 
-	if(isLoading) {
+	const btnBase = 'absolute left-full ml-2 top-0 -translate-y-1/2 transform hover:scale-110 transition-transform duration-300 cursor-pointer';
+
+	if (isLoading) {
 		return (
-			<div
-				className="absolute left-full ml-2 top-1/2 -translate-y-1/2 transition transform duration-300 hover:scale-110"
-			>
-			<Icon icon={faSpinner} spin className="text-xl" />
+			<div className={btnBase}>
+				<Icon icon={faSpinner} spin />
 			</div>
 		);
 	}
 
+	if (friendship === undefined ) {
+		return <></>;
+	}
+
 	if (friendship?.status === 'pending') {
-		if (friendship.user_ckey === session?.user.ckey) {
+		if (friendship.user_ckey === session?.user.ckey) { // sent request
 			return (
-				<button
-					className="group absolute left-full ml-2 top-1/2 -translate-y-1/2 transition transform duration-300 hover:scale-110"
-					onClick={async () => {
-						declineFriend(session!.user!.ckey!, friendship.id).then((res) =>
-							setFriendship(res),
-						);
-					}}
-				>
-					<Icon
-						icon={faUserClock}
-						className="block group-hover:hidden text-xl"
-					/>
-					<Icon
-						icon={faUserMinus}
-						className="hidden group-hover:block text-xl"
-					/>
+				<button className={`group ${btnBase}`} onClick={async () => await declineFriend(ckey, friendship.id).then(mutate)}>
+					<Icon icon={faUserClock} className="block! group-hover:hidden!" />
+					<Icon icon={faUserMinus} className="hidden! group-hover:block!" />
 				</button>
 			);
 		} else if (friendship.friend_ckey === session?.user.ckey) {
 			return (
-				<button
-					className="absolute left-full ml-2 top-1/2 -translate-y-1/2 transition transform duration-300 hover:scale-110"
-					onClick={async () => {
-						acceptFriend(session!.user!.ckey!, friendship.id).then((res) =>
-							setFriendship(res),
-						);
-					}}
-				>
-					<Icon icon={faUserCheck} className="text-xl" />
+				<button className={btnBase} onClick={async () => await acceptFriend(ckey, friendship.id).then(mutate)}>
+					<Icon icon={faUserCheck} />
 				</button>
 			);
 		}
 	} else if (friendship?.status === 'accepted') {
 		return (
-			<button
-				className="group absolute left-full ml-2 top-1/2 -translate-y-1/2 transition transform duration-300 hover:scale-110"
-				onClick={async () => {
-					removeFriend(session!.user!.ckey!, friendship.id).then((res) =>
-						setFriendship(res),
-					);
-				}}
-			>
-				<Icon
-					icon={faUserFriends}
-					className="block group-hover:hidden text-xl"
-				/>
-				<Icon icon={faUserMinus} className="hidden group-hover:block text-xl" />
+			<button className={`group ${btnBase}`} onClick={async () => await removeFriend(ckey, friendship.id).then(mutate)}>
+				<Icon icon={faUserFriends} className="block! group-hover:hidden!" />
+				<Icon icon={faUserMinus} className="hidden! group-hover:block!" />
 			</button>
 		);
 	}
+
 	return (
-		<button
-			className="absolute left-full ml-2 top-1/2 -translate-y-1/2 transition transform duration-300 hover:scale-110"
-			onClick={async () => {
-				addFriend(session!.user!.ckey!, player.ckey).then((res) =>
-					setFriendship(res),
-				);
-			}}
-		>
-			<Icon icon={faUserPlus} className="text-xl" />
+		<button className={btnBase} onClick={async () => await addFriend(ckey, player.ckey).then(mutate)}>
+			<Icon icon={faUserPlus} />
 		</button>
 	);
 }

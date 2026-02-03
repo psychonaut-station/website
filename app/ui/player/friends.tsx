@@ -42,7 +42,7 @@ export default function Friends({ ckey }: { ckey: string; }) {
 	const [activeCategory, setActiveCategory] = useState<Category>('friends');
 	const { component: Category } = categories[activeCategory];
 
-	const { data, error, isLoading, mutate } = useSWR<FriendsData>('/api/player/friends', fetcher, { revalidateOnFocus: false });
+	const { data, error, isLoading, mutate } = useSWR<FriendsData>('/api/player/friends', fetcher);
 
 	return (
 		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 sm:px-14 lg:px-54">
@@ -249,7 +249,7 @@ function LazyFriendCard({ ckey, friend, mutate: mutateFriends }: { ckey: string;
 }
 
 function FriendButton({ friendship, ckey, friend, onClick }: { friendship: Friendship | null; ckey: string; friend: string; onClick: (friendship: Friendship | null) => void; }) {
-	const btnBase = 'w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg transition-all duration-100 active:scale-90 shrink-0';
+	const btnBase = 'w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg transition-all duration-100 active:scale-90 shrink-0 cursor-pointer';
 
 	if (friendship?.status === 'pending') {
 		if (friendship.user_ckey === ckey) { // sent request
@@ -259,7 +259,7 @@ function FriendButton({ friendship, ckey, friend, onClick }: { friendship: Frien
 					onClick={() => declineFriend(ckey, friendship.id).then(onClick)}
 					title="İsteği iptal et"
 				>
-					<Icon icon={faUserClock} className="block group-hover/btn:hidden text-sm sm:text-base" />
+					<Icon icon={faUserClock} className="block! group-hover/btn:hidden! text-sm sm:text-base" />
 					<Icon icon={faUserMinus} className="hidden! group-hover/btn:block! text-sm sm:text-base" />
 				</button>
 			);
@@ -290,7 +290,7 @@ function FriendButton({ friendship, ckey, friend, onClick }: { friendship: Frien
 				onClick={() => removeFriend(ckey, friendship.id).then(onClick)}
 				title="Arkadaşlıktan çıkar"
 			>
-				<Icon icon={faUserFriends} className="block group-hover/btn:hidden text-sm sm:text-base" />
+				<Icon icon={faUserFriends} className="block! group-hover/btn:hidden! text-sm sm:text-base" />
 				<Icon icon={faUserMinus} className="hidden! group-hover/btn:block! text-sm sm:text-base" />
 			</button>
 		);
