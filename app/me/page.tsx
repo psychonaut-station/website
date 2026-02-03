@@ -9,7 +9,7 @@ import Player from '@/app/ui/player';
 async function Me() {
 	const session = await getServerSession(authOptions);
 
-	// todo: bunun (!) garantisi ne?
+	// proxy/auth.ts ensures user is authenticated before reaching here
 	const player = await getPlayer(session!.user!.ckey!);
 
 	if (!player) notFound();
