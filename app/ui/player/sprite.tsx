@@ -19,7 +19,7 @@ type PlayerSpriteProps = {
   scale?: number;
 }
 
-export default function PlayerSprite({ ckey, character, job, direction = Direction.Front, scale = 1 }: PlayerSpriteProps) {
+export default function Sprite({ ckey, character, job, direction = Direction.Front, scale = 1 }: PlayerSpriteProps) {
 	const ref = useRef<HTMLDivElement>(null);
 	const src = useMemo(() => character && playerSpriteImageLoader({ src: `${ckey}/${encodeURI(character)}.png`, width: characterSize * scale }), [ckey, character, scale]);
   const area = job === 'Animal' ? Area.Full : Area.Biometric;

@@ -19,16 +19,16 @@ import useSWRImmutable from 'swr/immutable';
 import { acceptFriend, addFriend, declineFriend, removeFriend } from '@/app/lib/actions';
 import { FriendsData, Friendship } from '@/app/lib/definitions';
 import fetcher from '@/app/lib/fetcher';
-import PlayerSprite from '@/app/ui/player-sprite';
+import Sprite from '@/app/ui/player/sprite';
 
 const categories = {
 	friends: {
 		name: 'Arkadaşlar',
-		component: Friends,
+		component: FriendList,
 	},
 	invites: {
 		name: 'Davetler',
-		component: Invites,
+		component: InviteList,
 	},
 	find: {
 		name: 'Arkadaşlarını Bul',
@@ -38,7 +38,7 @@ const categories = {
 
 type Category = keyof typeof categories;
 
-export default function PlayerFriends({ ckey }: { ckey: string; }) {
+export default function Friends({ ckey }: { ckey: string; }) {
 	const [activeCategory, setActiveCategory] = useState<Category>('friends');
 	const { component: Category } = categories[activeCategory];
 
@@ -91,7 +91,7 @@ export default function PlayerFriends({ ckey }: { ckey: string; }) {
 	);
 }
 
-function Friends({ friends, ckey, mutate }: { friends: Friendship[]; ckey: string; mutate: () => void; }) {
+function FriendList({ friends, ckey, mutate }: { friends: Friendship[]; ckey: string; mutate: () => void; }) {
 	return (
 		<div className="flex-1 flex flex-col gap-4">
 			<h2 className="text-white text-lg font-bold text-center md:text-base">Arkadaşlarım</h2>
@@ -108,7 +108,7 @@ function Friends({ friends, ckey, mutate }: { friends: Friendship[]; ckey: strin
 	);
 }
 
-function Invites({ received, sent, ckey, mutate }: { received: Friendship[]; sent: Friendship[]; ckey: string; mutate: () => void; }) {
+function InviteList({ received, sent, ckey, mutate }: { received: Friendship[]; sent: Friendship[]; ckey: string; mutate: () => void; }) {
 	return (
 		<div className="flex-1 flex flex-col gap-4">
 			<h2 className="text-white text-lg font-bold text-center md:text-base">Gelen Davetler</h2>
@@ -205,7 +205,7 @@ function FriendCard(props: FriendCardProps) {
 		<div className="flex items-center justify-between p-2.5 sm:p-3 bg-gray-800/40 rounded-lg border border-white/5 hover:border-indigo-500/20 transition-all duration-300 group shadow-xs gap-2">
 			<div className="flex items-center gap-2 sm:gap-3 min-w-0">
 				<div className="w-10 h-10 sm:w-14 sm:h-14 rounded-md bg-gray-950/80 border border-white/10 shrink-0 flex items-center justify-center overflow-hidden">
-					<PlayerSprite ckey={friend} character={character?.[0]} job={character?.[1]} scale={1.4} />
+					<Sprite ckey={friend} character={character?.[0]} job={character?.[1]} scale={1.4} />
 				</div>
 				<div className="flex flex-col min-w-0">
 					<Link

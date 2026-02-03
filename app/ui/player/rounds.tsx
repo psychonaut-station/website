@@ -11,7 +11,7 @@ import { useScrollInto } from '@/app/hooks/useScrollInto';
 import { Manifest } from '@/app/lib/definitions';
 import fetcher from '@/app/lib/fetcher';
 import { Pagination } from '@/app/ui/navigation';
-import PlayerSprite from '@/app/ui/player-sprite';
+import Sprite from '@/app/ui/player/sprite';
 
 type ManifestResponse = {
 	data: Manifest[];
@@ -22,7 +22,7 @@ const pageSizeOptions = [10, 20, 30, 40] as const;
 type PageSizeOption = (typeof pageSizeOptions)[number];
 
 
-export default function PlayerRounds({ ckey }: { ckey: string; }) {
+export default function Rounds({ ckey }: { ckey: string; }) {
   const [page, setPage] = useState(1);
   const [debouncedPage] = useDebounce(page, 200);
   const [pageSize, setPageSize] = useState<PageSizeOption>(20);
@@ -93,7 +93,7 @@ function Round({ manifest, ckey }: { manifest: Manifest, ckey: string }) {
       className="group flex items-center w-full bg-black/60 border border-white/5 hover:border-white/20 transition-all p-2 gap-3 sm:gap-4"
     >
       <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-950/80 border border-white/10 shrink-0 flex items-center justify-center">
-        <PlayerSprite
+        <Sprite
           ckey={ckey}
           character={manifest.character_name}
 					job={manifest.job}

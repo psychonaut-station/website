@@ -20,16 +20,16 @@ type MessageResponse = {
 const pageSizeOptions = [5, 10, 15, 20] as const;
 type PageSizeOption = (typeof pageSizeOptions)[number];
 
-export default function PlayerMessages() {
+export default function Messages() {
 	return (
 		<div className="w-full flex-1 flex flex-col items-center gap-5 pt-8 px-4 sm:px-8 md:px-14 lg:px-56 xl:px-80 ultrawide:px-120 huge:px-160">
-			<Messages/>
-			<Notes/>
+			<MessageList/>
+			<NoteList/>
 		</div>
 	);
 }
 
-function Messages() {
+function MessageList() {
 	const [page, setPage] = useState(1);
 	const [debouncedPage] = useDebounce(page, 200);
 	const [pageSize, setPageSize] = useState<PageSizeOption>(10);
@@ -84,7 +84,7 @@ function Messages() {
 	);
 }
 
-function Notes() {
+function NoteList() {
 	const [page, setPage] = useState(1);
 	const [debouncedPage] = useDebounce(page, 200);
 	const [pageSize, setPageSize] = useState<PageSizeOption>(10);

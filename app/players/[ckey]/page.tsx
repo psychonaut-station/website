@@ -35,10 +35,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	};
 }
 
-async function DynamicPage({ params }: Props) {
-	const { ckey } = await params;
-
-	const player = await getPlayer(ckey);
+async function PlayerPage({ ckey }: { ckey: Promise<string>; }) {
+	const player = await getPlayer(await ckey);
 
 	if (!player) {
 		notFound();
@@ -48,9 +46,11 @@ async function DynamicPage({ params }: Props) {
 }
 
 export default async function Page({ params }: Props) {
+	const ckey = params.then(p => p.ckey);
+
 	return (
 		<Suspense>
-			<DynamicPage params={params} />
+			<PlayerPage ckey={ckey} />
 		</Suspense>
 	);
 }

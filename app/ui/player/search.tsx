@@ -10,7 +10,7 @@ import useSWRImmutable from 'swr/immutable';
 import fetcher from '@/app/lib/fetcher';
 import Button from '@/app/ui/button';
 
-export default function PlayerSearch() {
+export default function Search() {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const timeoutRef = useRef(0);
 
