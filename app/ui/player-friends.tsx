@@ -45,11 +45,11 @@ export default function PlayerFriends({ ckey }: { ckey: string; }) {
 	const { data, error, isLoading, mutate } = useSWR<FriendsData>('/api/player/friends', fetcher, { revalidateOnFocus: false });
 
 	return (
-		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 sm:px-14 lg:px-[13.5rem]">
+		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 sm:px-14 lg:px-54">
 			<div className="w-full flex flex-col items-center gap-5">
 				<span className="text-center text-3xl font-bold mb-4">Arkadaşlar</span>
 				<div className="w-full flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-					<div className="h-min p-4 bg-gray-700 bg-opacity-10 rounded-[.25rem]">
+					<div className="h-min p-4 bg-gray-700/10 rounded-sm">
 						<h2 className="mb-4 text-white text-lg font-bold text-center md:text-base">Kategoriler</h2>
 						<ul className="space-y-2 [&>li]:px-4 [&>li]:py-2">
 							{Object.entries(categories).map(([category, item]) => (
@@ -75,8 +75,7 @@ export default function PlayerFriends({ ckey }: { ckey: string; }) {
 							</div>
 						)}
 						{!!data && (
-							<div className="h-full flex-1 flex justify-center p-4 bg-opacity-10 rounded-[.25rem] bg-gray-800/10">
-								{/* <Category friends={mockFriends} received={receivedMockFriends} sent={sentMockFriends} ckey={ckey} mutate={mutate} /> */}
+							<div className="h-full flex-1 flex justify-center p-4 bg-gray-800/10 rounded-sm">
 								<Category friends={data.friends} received={data.received} sent={data.sent} ckey={ckey} mutate={mutate} />
 							</div>
 						)}
@@ -171,8 +170,8 @@ function FindFriends({ ckey, mutate }: { ckey: string; mutate: () => void; }) {
 	return (
 		<div className="flex-1 flex flex-col items-center gap-4">
 			<h2 className="text-white text-lg font-bold text-center md:text-base">Arkadaş Bul</h2>
-			<div className="w-min flex items-center px-3 py-2 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-[.25rem] text-center">
-				<input className="h-full flex-1 bg-transparent outline-none" ref={inputRef} onInput={onInput} placeholder="Oyuncu ara"></input>
+			<div className="w-min flex items-center px-3 py-2 bg-white/5 border border-white/10 rounded-sm text-center">
+				<input className="h-full flex-1 bg-transparent outline-hidden" ref={inputRef} onInput={onInput} placeholder="Oyuncu ara"></input>
 				<div className="w-5 flex justify-center"><Icon icon={isLoading ? faSpinner : faSearch} spin={isLoading} className={clsx(isLoading && 'opacity-50', 'text-white align-middle')} /></div>
 			</div>
 			{autocomplete.length !== 0 && (
@@ -203,9 +202,9 @@ function FriendCard(props: FriendCardProps) {
 	});
 
 	return (
-		<div className="flex items-center justify-between p-2.5 sm:p-3 bg-gray-800/40 rounded-lg border border-white/5 hover:border-indigo-500/20 transition-all duration-300 group shadow-sm gap-2">
+		<div className="flex items-center justify-between p-2.5 sm:p-3 bg-gray-800/40 rounded-lg border border-white/5 hover:border-indigo-500/20 transition-all duration-300 group shadow-xs gap-2">
 			<div className="flex items-center gap-2 sm:gap-3 min-w-0">
-				<div className="w-10 h-10 sm:w-14 sm:h-14 rounded-md bg-gray-950/80 border border-white/10 flex-shrink-0 flex items-center justify-center overflow-hidden">
+				<div className="w-10 h-10 sm:w-14 sm:h-14 rounded-md bg-gray-950/80 border border-white/10 shrink-0 flex items-center justify-center overflow-hidden">
 					<PlayerSprite ckey={friend} character={character?.[0]} job={character?.[1]} scale={1.4} />
 				</div>
 				<div className="flex flex-col min-w-0">
@@ -220,7 +219,7 @@ function FriendCard(props: FriendCardProps) {
 					</span>
 				</div>
 			</div>
-			<div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+			<div className="flex items-center gap-1 sm:gap-2 shrink-0">
 				<FriendButton friendship={friendship} ckey={props.ckey} friend={friend} onClick={() => props.mutate()} />
 				<Link
 					href={`/players/${friend}`}
@@ -250,7 +249,7 @@ function LazyFriendCard({ ckey, friend, mutate: mutateFriends }: { ckey: string;
 }
 
 function FriendButton({ friendship, ckey, friend, onClick }: { friendship: Friendship | null; ckey: string; friend: string; onClick: (friendship: Friendship | null) => void; }) {
-	const btnBase = 'w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg transition-all duration-100 active:scale-90 flex-shrink-0';
+	const btnBase = 'w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg transition-all duration-100 active:scale-90 shrink-0';
 
 	if (friendship?.status === 'pending') {
 		if (friendship.user_ckey === ckey) { // sent request
@@ -261,7 +260,7 @@ function FriendButton({ friendship, ckey, friend, onClick }: { friendship: Frien
 					title="İsteği iptal et"
 				>
 					<Icon icon={faUserClock} className="block group-hover/btn:hidden text-sm sm:text-base" />
-					<Icon icon={faUserMinus} className="!hidden group-hover/btn:!block text-sm sm:text-base" />
+					<Icon icon={faUserMinus} className="hidden! group-hover/btn:block! text-sm sm:text-base" />
 				</button>
 			);
 		} else if (friendship.friend_ckey === ckey) { // received request
@@ -292,7 +291,7 @@ function FriendButton({ friendship, ckey, friend, onClick }: { friendship: Frien
 				title="Arkadaşlıktan çıkar"
 			>
 				<Icon icon={faUserFriends} className="block group-hover/btn:hidden text-sm sm:text-base" />
-				<Icon icon={faUserMinus} className="!hidden group-hover/btn:!block text-sm sm:text-base" />
+				<Icon icon={faUserMinus} className="hidden! group-hover/btn:block! text-sm sm:text-base" />
 			</button>
 		);
 	}

@@ -35,8 +35,8 @@ export default function SignIn() {
 	}
 
   return (
-    <div className="flex flex-col items-center justify-center p-12 backdrop-blur-md border border-white border-opacity-10 rounded-md">
-      <div className="w-full max-w-[350px] flex flex-col gap-4 text-center">
+    <div className="flex flex-col items-center justify-center p-12 backdrop-blur-md border border-white/10 rounded-md">
+      <div className="w-full max-w-87.5 flex flex-col gap-4 text-center">
         {status === 'authenticated' ? (
           <>
             <div>
@@ -65,7 +65,7 @@ export default function SignIn() {
               <p className="text-sm text-gray-400 mt-1">Kendi verilerinizi görmek için giriş yapınız.</p>
             </div>
             {!!error && (
-              <div className="text-sm text-red-300 bg-red-500/10 p-3 rounded border border-red-500/20">
+              <div className="text-sm text-red-300 bg-red-500/10 p-3 rounded-sm border border-red-500/20">
                 Bir hata oluştu. Lütfen daha sonra tekrar deneyiniz. Hatanın devam etmesi durumunda yetkililere başvurunuz.
               </div>
             )}

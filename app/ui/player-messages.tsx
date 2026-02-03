@@ -22,7 +22,7 @@ type PageSizeOption = (typeof pageSizeOptions)[number];
 
 export default function PlayerMessages() {
 	return (
-		<div className="w-full flex-1 flex flex-col items-center gap-5 pt-8 px-4 sm:px-8 md:px-14 lg:px-56 xl:px-80 ultrawide:px-[30rem] huge:px-[40rem]">
+		<div className="w-full flex-1 flex flex-col items-center gap-5 pt-8 px-4 sm:px-8 md:px-14 lg:px-56 xl:px-80 ultrawide:px-120 huge:px-160">
 			<Messages/>
 			<Notes/>
 		</div>
@@ -163,7 +163,7 @@ function Message({ message }: { message: MessageData }) {
           <span>{new Date(message.timestamp).toLocaleString('tr-TR')} - {message.days_passed} gün önce</span>
         </div>
       </div>
-      <div className="text-sm leading-relaxed text-gray-200 break-words whitespace-pre-wrap italic bg-black/20 p-3 rounded border border-white/5">
+      <div className="text-sm leading-relaxed text-gray-200 wrap-break-word whitespace-pre-wrap italic bg-black/20 p-3 rounded-sm border border-white/5">
         {message.text}
       </div>
       <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400 border-t border-white/5 pt-2">
@@ -185,7 +185,7 @@ function Message({ message }: { message: MessageData }) {
           </div>
         )}
         {message.severity && (
-          <div className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded bg-white/5">
+          <div className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded-sm bg-white/5">
             <Icon icon={faExclamationTriangle} size="xs" />
             <span className="uppercase">{message.severity}</span>
           </div>

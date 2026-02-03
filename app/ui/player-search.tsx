@@ -44,8 +44,8 @@ export default function PlayerSearch() {
 
 	return (
 		<div className="flex-1 flex flex-col items-center gap-5">
-			<div className="flex items-center px-3 py-2 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-[.25rem] text-center">
-				<input className="h-full flex-1 bg-transparent outline-none" ref={inputRef} onInput={onInput} placeholder="Oyuncu ara"></input>
+			<div className="flex items-center px-3 py-2 bg-white/5 border border-white/10 rounded-sm text-center">
+				<input className="h-full flex-1 bg-transparent outline-hidden" ref={inputRef} onInput={onInput} placeholder="Oyuncu ara"></input>
 				<div className="w-5 flex justify-center"><Icon icon={isLoading ? faSpinner : faSearch} spin={isLoading} className={clsx(isLoading && 'opacity-50', 'text-white align-middle')} /></div>
 			</div>
 			{autocomplete.length !== 0 && (

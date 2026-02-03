@@ -14,7 +14,7 @@ export default function Bans() {
   const { data: bans, error, isLoading } = useSWRImmutable<BanType[]>('/api/player/bans', fetcher);
 
   return (
-		<div className='w-full flex-1 flex flex-col items-center gap-5 pt-8 px-4 sm:px-8 md:px-14 lg:px-56 xl:px-80 ultrawide:px-[30rem] huge:px-[40rem]'>
+		<div className='w-full flex-1 flex flex-col items-center gap-5 pt-8 px-4 sm:px-8 md:px-14 lg:px-56 xl:px-80 ultrawide:px-120 huge:px-160'>
       <div className="w-full flex flex-col items-center gap-5">
         <span className="text-center text-3xl font-bold mb-2 flex items-center gap-3">
           Geçmiş Banlar
@@ -71,24 +71,24 @@ function Ban({ ban }: { ban: BanType }) {
           <span>{new Date(ban.bantime).toLocaleString('tr-TR')} - {relativeTime(ban.bantime)} önce</span>
         </div>
       </div>
-      <div className="text-sm leading-relaxed text-gray-200 break-words whitespace-pre-wrap italic bg-black/20 p-3 rounded border border-white/5">
+      <div className="text-sm leading-relaxed text-gray-200 wrap-break-word whitespace-pre-wrap italic bg-black/20 p-3 rounded-sm border border-white/5">
         {ban.reason}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 py-2">
-        <div className="flex items-center gap-2 text-[11px] bg-white/5 p-2 rounded">
+        <div className="flex items-center gap-2 text-[11px] bg-white/5 p-2 rounded-sm">
           <Icon icon={faHourglassHalf} className="text-purple-400" />
           <span className="text-gray-400">Süre:</span>
           <span className="text-white font-medium">{duration}</span>
         </div>
         {ban.unbanned_datetime && (
-          <div className="flex items-center gap-2 text-[11px] bg-white/5 p-2 rounded">
+          <div className="flex items-center gap-2 text-[11px] bg-white/5 p-2 rounded-sm">
             <Icon icon={faUnlock} className="text-green-400" />
             <span className="text-gray-400">Kaldırıldığı Tarih:</span>
             <span className="text-white font-medium">{relativeTime(ban.unbanned_datetime)} önce</span>
           </div>
         )}
         {ban.unbanned_ckey && (
-          <div className="flex items-center gap-2 text-[11px] bg-white/5 p-2 rounded">
+          <div className="flex items-center gap-2 text-[11px] bg-white/5 p-2 rounded-sm">
             <Icon icon={faUserShield} className="text-blue-400" />
             <span className="text-gray-400">Kaldıran Admin:</span>
 						<Link href={`/players/${ban.unbanned_ckey}`} className="text-white font-medium hover:underline">{ban.unbanned_ckey}</Link>
@@ -107,7 +107,7 @@ function Ban({ ban }: { ban: BanType }) {
 						const colorStyle = { '--color': departmentColors[jobDepartments[role]] ?? '#c5c5c5' } as React.CSSProperties;
 
 						return (
-							<div key={role} style={colorStyle} className="inline-flex items-center justify-center gap-1 px-2 h-4 border border-[--color] rounded text-[9px] text-[--color] font-bold uppercase leading-none">
+							<div key={role} style={colorStyle} className="inline-flex items-center justify-center gap-1 px-2 h-4 border border-(--color) rounded-sm text-[9px] text-(--color) font-bold uppercase leading-none">
 								<Icon icon={faCircleExclamation} className="text-[8px] shrink-0" />
 								<span>{role}</span>
 							</div>

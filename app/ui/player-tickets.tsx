@@ -38,7 +38,7 @@ export default function Tickets({ ckey }: { ckey: string; }) {
 	useScrollInto('tickets-navigation', optimisticTickets);
 
   return (
-    <div className="w-full flex-1 flex flex-col items-center gap-5 pt-8 px-4 sm:px-8 md:px-14 lg:px-[13.5rem] xl:px-[20rem] ultrawide:px-[30rem] huge:px-[40rem]">
+    <div className="w-full flex-1 flex flex-col items-center gap-5 pt-8 px-4 sm:px-8 md:px-14 lg:px-54 xl:px-80 ultrawide:px-120 huge:px-160">
       <div className="w-full flex flex-col items-center gap-5">
         <span className="text-center text-3xl font-bold mb-4 flex items-center gap-3">Ticketler</span>
         <div className="w-full flex flex-col">
@@ -78,11 +78,11 @@ export default function Tickets({ ckey }: { ckey: string; }) {
 
 function Ticket({ ticket, ckey }: { ticket: TicketGroup, ckey: string; }) {
   return (
-    <div className="flex flex-col bg-black bg-opacity-20 rounded-md border border-gray-700 overflow-hidden">
-      <div className="bg-gray-700 bg-opacity-30 px-4 py-2 flex justify-between items-center border-b border-gray-700">
+    <div className="flex flex-col bg-black/20 rounded-md border border-gray-700 overflow-hidden">
+      <div className="bg-gray-700/30 px-4 py-2 flex justify-between items-center border-b border-gray-700">
         <div className="flex items-center gap-4">
 					<Link href={`/rounds/${ticket.round_id}`} className="font-bold text-blue-300 hover:underline">Round #{ticket.round_id}</Link>
-          <span className="bg-gray-800 px-2 py-0.5 rounded text-xs text-gray-300 border border-gray-600">
+          <span className="bg-gray-800 px-2 py-0.5 rounded-sm text-xs text-gray-300 border border-gray-600">
             Ticket #{ticket.ticket_id}
           </span>
         </div>
@@ -99,8 +99,8 @@ function Ticket({ ticket, ckey }: { ticket: TicketGroup, ckey: string; }) {
             <div key={log.timestamp} className={clsx('flex flex-col', self && 'items-end' || 'items-start')}>
               <div className={clsx(
 								'max-w-[90%] p-3 rounded-lg text-sm',
-								self && 'bg-blue-900 bg-opacity-40 border border-blue-800 text-blue-50'
-								|| 'bg-orange-700 bg-opacity-20 border border-orange-800 text-orange-50',
+								self && 'bg-blue-900/40 border border-blue-800 text-blue-50'
+								|| 'bg-orange-700/20 border border-orange-800 text-orange-50',
 							)}>
                 <div className="flex items-center gap-2 mb-1">
 									{log.sender ? (
@@ -119,7 +119,7 @@ function Ticket({ ticket, ckey }: { ticket: TicketGroup, ckey: string; }) {
                 </div>
                 <span className="whitespace-pre-wrap leading-relaxed">{log.message}</span>
                 {log.action !== 'Reply' && log.action !== 'Ticket Opened' && (
-                  <div className="mt-2 pt-1 border-t border-white border-opacity-10 text-[10px] italic opacity-60">
+                  <div className="mt-2 pt-1 border-t border-white/10 text-[10px] italic opacity-60">
                     Action: {log.action}
                   </div>
                 )}

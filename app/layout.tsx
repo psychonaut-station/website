@@ -4,7 +4,8 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from '@fortawesome/fontawesome-svg-core';
 config.autoAddCss = false;
 
-import localFont from 'next/font/local';
+// import localFont from 'next/font/local';
+import { Geist, Geist_Mono } from 'next/font/google';
 import Image from 'next/image';
 import { Suspense } from 'react';
 
@@ -14,12 +15,21 @@ import NavLinks from '@/app/ui/nav-links';
 import { Providers } from '@/app/ui/provider';
 import SignInButton from '@/app/ui/sign-in-button';
 
-const geistSans = localFont({
-	src: './fonts/GeistVF.woff',
+// const geistSans = localFont({
+// 	src: './fonts/GeistVF.woff',
+// 	variable: '--font-geist-sans',
+// });
+// const geistMono = localFont({
+// 	src: './fonts/GeistMonoVF.woff',
+// 	variable: '--font-geist-mono',
+// });
+
+const geist = Geist({
+	subsets: ['latin'],
 	variable: '--font-geist-sans',
 });
-const geistMono = localFont({
-	src: './fonts/GeistMonoVF.woff',
+const geistMono = Geist_Mono({
+	subsets: ['latin'],
 	variable: '--font-geist-mono',
 });
 
@@ -30,10 +40,10 @@ type RootLayoutProps = { children: React.ReactNode };
 export default function RootLayout({ children }: RootLayoutProps) {
 	return (
 		<html lang="tr">
-			<body className={`${geistSans.variable} ${geistMono.variable} font-sans text-white`}>
+			<body className={`${geist.variable} ${geistMono.variable} font-sans text-white`}>
 				<Providers>
 					<div className="w-screen h-screen overflow-y-auto scrollbar-hidden">
-						<div className="fixed right-4 top-4 text-sm z-[100]">
+						<div className="fixed right-4 top-4 text-sm z-100">
 							<SignInButton />
 						</div>
 						<div className="w-screen h-screen flex flex-col overflow-x-hidden scrollbar-thumb-gray scrollbar-track-transparent">
@@ -43,7 +53,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 							<div className="flex-1 flex flex-col items-center px-6 pb-6">{children}</div>
 						</div>
 						<div className="w-screen h-screen fixed top-0 left-0 -z-50 pointer-events-none">
-							<Image className="w-full h-full object-cover object-left-top" src={background} alt="Website background" quality={100} priority />
+							<Image className="w-full h-full object-cover object-top-left" src={background} alt="Website background" quality={100} priority />
 						</div>
 						<Footer />
 					</div>

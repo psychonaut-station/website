@@ -13,7 +13,7 @@ export default function ServerList() {
 	const { servers, error, isLoading } = useServer();
 
 	return (
-		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 pb-14 sm:px-14 sm:pt-20 lg:px-[13.5rem]">
+		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 pb-14 sm:px-14 sm:pt-20 lg:px-54">
 			{isLoading && !servers && !error && (
 				<ServerSkeleton />
 			)}

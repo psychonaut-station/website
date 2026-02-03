@@ -54,7 +54,7 @@ export function NumberInput(props: NumberInputProps) {
 		<input
 			{...props}
 			className={clsx(
-				'bg-transparent outline-none text-center caret-white transition-opacity',
+				'bg-transparent outline-hidden text-center caret-white transition-opacity',
 				props.className,
 			)}
 			ref={inputRef}

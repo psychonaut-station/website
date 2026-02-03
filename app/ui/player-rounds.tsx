@@ -92,7 +92,7 @@ function Round({ manifest, ckey }: { manifest: Manifest, ckey: string }) {
       href={`/rounds/${manifest.round_id}`}
       className="group flex items-center w-full bg-black/60 border border-white/5 hover:border-white/20 transition-all p-2 gap-3 sm:gap-4"
     >
-      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-950/80 border border-white/10 flex-shrink-0 flex items-center justify-center">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-950/80 border border-white/10 shrink-0 flex items-center justify-center">
         <PlayerSprite
           ckey={ckey}
           character={manifest.character_name}

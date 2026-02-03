@@ -19,7 +19,7 @@ import { Pagination } from '@/app/ui/navigation';
 
 export default function Statistics({ statistics }: { statistics: OverviewData[] }) {
 	return (
-		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 sm:px-14 lg:px-[13.5rem]">
+		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 sm:px-14 lg:px-54">
 			<div className="w-full flex flex-col items-center gap-5">
 				<span className="text-center text-3xl font-bold mb-4">Genel Bakış</span>
 				<Overview overview={statistics}/>
@@ -66,7 +66,7 @@ function Overview({ overview }: { overview: OverviewData[] }) {
 	return (
 		<div className="w-full flex flex-col md:flex-row">
 			<div className="max-md:w-full h-min flex flex-col">
-				<div className="max-md:w-full h-min p-4 bg-gray-700 bg-opacity-10 rounded-[.25rem]">
+				<div className="max-md:w-full h-min p-4 bg-gray-700/10 rounded-sm">
 					<h2 className="mb-4 text-white text-lg font-bold text-center md:text-base">Kategoriler</h2>
 					<ul className="space-y-2 [&>li]:px-4 [&>li]:py-2">
 						{Object.entries(overviewCategories).map(([category, name]) => (
@@ -210,7 +210,7 @@ function Events() {
 
 	return (
 		<div className="w-full flex flex-col md:flex-row md:space-x-4">
-			<div className="max-md:w-full h-min p-4 mb-4 bg-gray-700 bg-opacity-10 rounded-[.25rem]">
+			<div className="max-md:w-full h-min p-4 mb-4 bg-gray-700/10 rounded-sm">
 				<h2 className="mb-4 text-white text-lg font-bold text-center md:text-base">Kategoriler</h2>
 				<ul className="space-y-2 [&>li]:px-4 [&>li]:py-2">
 					{Object.entries(eventCategories).map(([category, name]) => (
@@ -263,7 +263,7 @@ function Events() {
 function Event({ item }: { item: Death | Citation }) {
 	if ('name' in item) {
 		return (
-			<li className="p-4 mb-4 bg-gray-600 bg-opacity-10 text-white rounded-[.25rem]">
+			<li className="p-4 mb-4 bg-gray-600/10 text-white rounded-sm">
 				<div className="w-full flex flex-col">
 					<div className="flex items-center justify-between gap-1">
 						<div className="inline">
@@ -273,8 +273,8 @@ function Event({ item }: { item: Death | Citation }) {
 					</div>
 					<div className="w-full mt-2 flex justify-between">
 						<div className="flex flex-wrap gap-2">
-							<Link href={`/rounds/${item.round_id}`} className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-black px-2 py-1 rounded-[.25rem] text-xs transition-colors">Round {item.round_id}</Link>
-							{item.suicide && <div className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-black px-2 py-1 rounded-[.25rem] text-xs">İntihar</div>}
+							<Link href={`/rounds/${item.round_id}`} className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-black px-2 py-1 rounded-sm text-xs transition-colors">Round {item.round_id}</Link>
+							{item.suicide && <div className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-black px-2 py-1 rounded-sm text-xs">İntihar</div>}
 						</div>
 						<div className="flex items-center gap-2 [&>span]:text-sm">
 							<span title="Brute" className="text-red-500">{item.bruteloss}</span>
@@ -290,7 +290,7 @@ function Event({ item }: { item: Death | Citation }) {
 
 	if ('sender' in item) {
 		return (
-			<li className="p-4 mb-4 bg-gray-600 bg-opacity-10 text-white rounded-[.25rem]">
+			<li className="p-4 mb-4 bg-gray-600/10 text-white rounded-sm">
 				<div className="w-full flex flex-col">
 					<div className="flex items-center justify-between gap-1">
 						<div className="inline">
@@ -307,7 +307,7 @@ function Event({ item }: { item: Death | Citation }) {
 					)}
 					<div className="w-full mt-2 flex">
 						<div className="flex flex-wrap">
-							<Link href={`/rounds/${item.round_id}`} className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-black px-2 py-1 rounded-[.25rem] text-xs transition-colors">Round {item.round_id}</Link>
+							<Link href={`/rounds/${item.round_id}`} className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-black px-2 py-1 rounded-sm text-xs transition-colors">Round {item.round_id}</Link>
 						</div>
 					</div>
 				</div>
