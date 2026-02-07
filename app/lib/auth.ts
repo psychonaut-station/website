@@ -1,4 +1,4 @@
-import type { NextAuthOptions } from 'next-auth';
+import { getServerSession, type NextAuthOptions } from 'next-auth';
 import Discord from 'next-auth/providers/discord';
 
 import { buildUrl } from '@/app/lib/data';
@@ -14,7 +14,7 @@ export const authOptions: NextAuthOptions = {
 	pages: {
     signIn: '/sign-in',
 		error: '/sign-in',
-		signOut: '/sign-in'
+		signOut: '/sign-in',
   },
   providers: [Discord({ clientId, clientSecret, authorization: { params: { scope: 'identify' } } })],
   callbacks: {
@@ -50,6 +50,8 @@ export const authOptions: NextAuthOptions = {
 		},
 	},
 };
+
+export const getAuthSession = () => getServerSession(authOptions);
 
 const getCkey = async (id: string): Promise<string | null | undefined> => {
 	try {

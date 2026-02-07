@@ -2,7 +2,7 @@
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { useRouter, useSearchParams, } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { ChangeEvent, Fragment, KeyboardEvent, useEffect,useRef, useState } from 'react';
 
@@ -93,7 +93,7 @@ export default function Verify() {
 		setError(null);
 
 		try {
-			const { success, message } = await verifyUser(formatted, userId);
+			const { success, message } = await verifyUser(formatted);
 
 			if (success) {
 				await update();

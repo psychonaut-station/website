@@ -1,11 +1,10 @@
-import { getServerSession } from 'next-auth';
 import { Suspense } from 'react';
 
-import { authOptions } from '@/app/lib/auth';
+import { getAuthSession } from '@/app/lib/auth';
 import Tickets from '@/app/ui/player/tickets';
 
 async function TicketsPage() {
-	const session = await getServerSession(authOptions);
+	const session = await getAuthSession();
 	// proxy/auth.ts ensures user is authenticated before reaching here
 	return <Tickets ckey={session!.user!.ckey!} />;
 }

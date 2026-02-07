@@ -458,21 +458,21 @@ function FriendButton({ player }: { player: Player; }) {
 	if (friendship?.status === 'pending') {
 		if (friendship.user_ckey === session?.user?.ckey) { // sent request
 			return (
-				<button className={`group ${btnBase}`} onClick={async () => await declineFriend(ckey, friendship.id).then(mutate)}>
+				<button className={`group ${btnBase}`} onClick={async () => await declineFriend(friendship.id).then(mutate)}>
 					<Icon icon={faUserClock} className="block! group-hover:hidden!" />
 					<Icon icon={faUserMinus} className="hidden! group-hover:block!" />
 				</button>
 			);
 		} else if (friendship.friend_ckey === session?.user?.ckey) {
 			return (
-				<button className={btnBase} onClick={async () => await acceptFriend(ckey, friendship.id).then(mutate)}>
+				<button className={btnBase} onClick={async () => await acceptFriend(friendship.id).then(mutate)}>
 					<Icon icon={faUserCheck} />
 				</button>
 			);
 		}
 	} else if (friendship?.status === 'accepted') {
 		return (
-			<button className={`group ${btnBase}`} onClick={async () => await removeFriend(ckey, friendship.id).then(mutate)}>
+			<button className={`group ${btnBase}`} onClick={async () => await removeFriend(friendship.id).then(mutate)}>
 				<Icon icon={faUserFriends} className="block! group-hover:hidden!" />
 				<Icon icon={faUserMinus} className="hidden! group-hover:block!" />
 			</button>
@@ -480,7 +480,7 @@ function FriendButton({ player }: { player: Player; }) {
 	}
 
 	return (
-		<button className={btnBase} onClick={async () => await addFriend(ckey, player.ckey).then(mutate)}>
+		<button className={btnBase} onClick={async () => await addFriend(player.ckey).then(mutate)}>
 			<Icon icon={faUserPlus} />
 		</button>
 	);

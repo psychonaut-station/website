@@ -1,10 +1,11 @@
 'use server';
 
+import { getAuthSession } from '@/app/lib/auth';
 import { buildUrl } from '@/app/lib/data';
 import type { Friendship } from '@/app/lib/definitions';
 import { post } from '@/app/lib/headers';
 
-const verifyEndpont = `${process.env.API_URL}/v2/verify`;
+const verifyEndpoint = `${process.env.API_URL}/v2/verify`;
 
 const addFriendhipEndpoint = `${process.env.API_URL}/v2/player/add_friend`;
 const removeFriendhipEndpoint = `${process.env.API_URL}/v2/player/remove_friend`;
@@ -13,9 +14,19 @@ const declineFriendhipEndpoint = `${process.env.API_URL}/v2/player/decline_frien
 
 type VerifyResult = { success: false; message: string; } | { success: true; message: string; ckey: string };
 
-export async function verifyUser(code: string, id: string): Promise<VerifyResult> {
+export async function verifyUser(code: string): Promise<VerifyResult> {
+	const session = await getAuthSession();
+	const id = session?.user?.id;
+
+	if (!id) {
+		return {
+			success: false,
+			message: 'Unauthorized',
+		};
+	}
+
 	try {
-		const response = await post(verifyEndpont, { discord_id: id, one_time_token: code });
+		const response = await post(verifyEndpoint, { discord_id: id, one_time_token: code });
 
 		if (!response.ok) {
 			if (response.status === 404) {
@@ -48,7 +59,14 @@ export async function verifyUser(code: string, id: string): Promise<VerifyResult
 	}
 }
 
-export async function addFriend(ckey: string, friend: string): Promise<Friendship | null> {
+export async function addFriend(friend: string): Promise<Friendship | null> {
+	const session = await getAuthSession();
+	const ckey = session?.user?.ckey;
+
+	if (!ckey) {
+		return null;
+	}
+
 	try {
 		const response = await post(buildUrl(addFriendhipEndpoint, { ckey, friend }));
 
@@ -60,7 +78,14 @@ export async function addFriend(ckey: string, friend: string): Promise<Friendshi
 	}
 }
 
-export async function removeFriend(ckey: string, friendship: number): Promise<Friendship | null> {
+export async function removeFriend(friendship: number): Promise<Friendship | null> {
+	const session = await getAuthSession();
+	const ckey = session?.user?.ckey;
+
+	if (!ckey) {
+		return null;
+	}
+
 	try {
 		const response = await post(buildUrl(removeFriendhipEndpoint, { ckey, friendship_id: friendship }));
 
@@ -72,7 +97,14 @@ export async function removeFriend(ckey: string, friendship: number): Promise<Fr
 	}
 }
 
-export async function acceptFriend(ckey: string, friendship: number): Promise<Friendship | null> {
+export async function acceptFriend(friendship: number): Promise<Friendship | null> {
+	const session = await getAuthSession();
+	const ckey = session?.user?.ckey;
+
+	if (!ckey) {
+		return null;
+	}
+
 	try {
 		const response = await post(buildUrl(acceptFriendhipEndpoint, { ckey, friendship_id: friendship }));
 
@@ -84,7 +116,14 @@ export async function acceptFriend(ckey: string, friendship: number): Promise<Fr
 	}
 }
 
-export async function declineFriend(ckey: string, friendship: number): Promise<Friendship | null> {
+export async function declineFriend(friendship: number): Promise<Friendship | null> {
+	const session = await getAuthSession();
+	const ckey = session?.user?.ckey;
+
+	if (!ckey) {
+		return null;
+	}
+
 	try {
 		const response = await post(buildUrl(declineFriendhipEndpoint, { ckey, friendship_id: friendship }));
 

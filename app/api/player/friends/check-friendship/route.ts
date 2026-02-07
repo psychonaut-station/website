@@ -1,8 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import * as z from 'zod';
 
-import { authOptions } from '@/app/lib/auth';
+import { getAuthSession } from '@/app/lib/auth';
 import { buildUrl } from '@/app/lib/data';
 import { get } from '@/app/lib/headers';
 
@@ -19,7 +18,7 @@ export async function GET(request: NextRequest) {
 		return new NextResponse('Bad Request', { status: 400 });
 	}
 
-	const session = await getServerSession(authOptions);
+	const session = await getAuthSession();
 	const ckey = session?.user?.ckey;
 
 	if (!ckey) {

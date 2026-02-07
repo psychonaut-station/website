@@ -256,7 +256,7 @@ function FriendButton({ friendship, ckey, friend, onClick }: { friendship: Frien
 			return (
 				<button
 					className={`${btnBase} bg-amber-500/10 text-amber-500 hover:bg-red-500/80 hover:text-white group/btn`}
-					onClick={() => declineFriend(ckey, friendship.id).then(onClick)}
+					onClick={() => declineFriend(friendship.id).then(onClick)}
 					title="İsteği iptal et"
 				>
 					<Icon icon={faUserClock} className="block! group-hover/btn:hidden! text-sm sm:text-base" />
@@ -268,14 +268,14 @@ function FriendButton({ friendship, ckey, friend, onClick }: { friendship: Frien
 				<>
 					<button
 						className={`${btnBase} bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/80 hover:text-white`}
-						onClick={() => acceptFriend(ckey, friendship.id).then(onClick)}
+						onClick={() => acceptFriend(friendship.id).then(onClick)}
 						title="Kabul et"
 					>
 						<Icon icon={faUserCheck} className="text-sm sm:text-base" />
 					</button>
 					<button
 						className={`${btnBase} bg-red-500/10 text-red-500 hover:bg-red-500/80 hover:text-white`}
-						onClick={() => declineFriend(ckey, friendship.id).then(onClick)}
+						onClick={() => declineFriend(friendship.id).then(onClick)}
 						title="Reddet"
 					>
 						<Icon icon={faUserMinus} className="text-sm sm:text-base" />
@@ -287,7 +287,7 @@ function FriendButton({ friendship, ckey, friend, onClick }: { friendship: Frien
 		return (
 			<button
 				className={`${btnBase} bg-indigo-500/10 text-indigo-400 hover:bg-red-500/80 hover:text-white group/btn`}
-				onClick={() => removeFriend(ckey, friendship.id).then(onClick)}
+				onClick={() => removeFriend(friendship.id).then(onClick)}
 				title="Arkadaşlıktan çıkar"
 			>
 				<Icon icon={faUserFriends} className="block! group-hover/btn:hidden! text-sm sm:text-base" />
@@ -299,7 +299,7 @@ function FriendButton({ friendship, ckey, friend, onClick }: { friendship: Frien
 	return (
 		<button
 			className={`${btnBase} bg-white/5 text-gray-400 hover:bg-indigo-600/80 hover:text-white`}
-			onClick={() => addFriend(ckey, friend).then(onClick)}
+			onClick={() => addFriend(friend).then(onClick)}
 			title="Arkadaş ekle"
 		>
 			<Icon icon={faUserPlus} className="text-sm sm:text-base" />

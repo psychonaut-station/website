@@ -1,13 +1,12 @@
 import { notFound } from 'next/navigation';
-import { getServerSession } from 'next-auth';
 import { Suspense } from 'react';
 
-import { authOptions } from '@/app/lib/auth';
+import { getAuthSession } from '@/app/lib/auth';
 import { getPlayer } from '@/app/lib/data';
 import Player from '@/app/ui/player';
 
 async function Me() {
-	const session = await getServerSession(authOptions);
+	const session = await getAuthSession();
 
 	// proxy/auth.ts ensures user is authenticated before reaching here
 	const player = await getPlayer(session!.user!.ckey!);

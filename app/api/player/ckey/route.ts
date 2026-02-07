@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 
-import { authOptions } from '@/app/lib/auth';
+import { getAuthSession } from '@/app/lib/auth';
 import { buildUrl } from '@/app/lib/data';
 import { get } from '@/app/lib/headers';
 
 const endpoint = `${process.env.API_URL}/v2/player/discord`;
 
 export async function GET() {
-	const session = await getServerSession(authOptions);
+	const session = await getAuthSession();
 	const id = session?.user?.id;
 
 	if (!id) {
