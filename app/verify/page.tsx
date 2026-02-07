@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 
-import VerifyMenu from '@/app/ui/verify';
+import Verify from '@/app/ui/verify';
 
 export default function Page() {
   return (
     <Suspense fallback={<div>Yükleniyor...</div>}>
-      <VerifyMenu />
+      <Verify />
     </Suspense>
   );
 }

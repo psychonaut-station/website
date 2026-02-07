@@ -415,23 +415,25 @@ function BanHistory({ bans }: BanHistoryProps) {
 
 function FriendButton({ player }: { player: Player; }) {
 	const { data: session } = useSession();
+
 	const ckey = session?.user?.ckey;
+	const self = ckey === player.ckey;
 
 	const { data: friendship, isLoading, error, mutate } = useSWR<Friendship | null>(`/api/player/friends/check-friendship?friend=${player.ckey}`, fetcher, {
-		isPaused: () => !ckey,
+		isPaused: () => self || !ckey,
 	});
 
 	// workaround for SWR not calling the API after session loads
 	const shouldFetch = useRef(false);
 
 	useEffect(() => {
-		if (!shouldFetch.current && ckey) {
+		if (!shouldFetch.current && ckey && !self) {
 			shouldFetch.current = true;
 			mutate();
 		}
-	}, [ckey, mutate]);
+	}, [ckey, self, mutate]);
 
-	if (!ckey) {
+	if (self || !ckey) {
 		return <></>;
 	}
 
@@ -454,14 +456,14 @@ function FriendButton({ player }: { player: Player; }) {
 	}
 
 	if (friendship?.status === 'pending') {
-		if (friendship.user_ckey === session?.user.ckey) { // sent request
+		if (friendship.user_ckey === session?.user?.ckey) { // sent request
 			return (
 				<button className={`group ${btnBase}`} onClick={async () => await declineFriend(ckey, friendship.id).then(mutate)}>
 					<Icon icon={faUserClock} className="block! group-hover:hidden!" />
 					<Icon icon={faUserMinus} className="hidden! group-hover:block!" />
 				</button>
 			);
-		} else if (friendship.friend_ckey === session?.user.ckey) {
+		} else if (friendship.friend_ckey === session?.user?.ckey) {
 			return (
 				<button className={btnBase} onClick={async () => await acceptFriend(ckey, friendship.id).then(mutate)}>
 					<Icon icon={faUserCheck} />

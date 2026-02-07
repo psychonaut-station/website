@@ -2,9 +2,9 @@ import type { NextAuthOptions } from 'next-auth';
 import Discord from 'next-auth/providers/discord';
 
 import { buildUrl } from '@/app/lib/data';
-import { get } from '@/app/lib/headers';
+import { get, head } from '@/app/lib/headers';
 
-const serverEndpoint = `${process.env.API_URL}/v2/server`;
+const healthcheckEndpoint = `${process.env.API_URL}/v2/server`;
 const ckeyEndpoint = `${process.env.API_URL}/v2/player/discord`;
 
 const clientId = process.env.AUTH_DISCORD_ID!;
@@ -16,11 +16,11 @@ export const authOptions: NextAuthOptions = {
 		error: '/sign-in',
 		signOut: '/sign-in'
   },
-  providers: [Discord({ clientId, clientSecret })],
+  providers: [Discord({ clientId, clientSecret, authorization: { params: { scope: 'identify' } } })],
   callbacks: {
     async signIn() {
       try {
-        const response = await get(serverEndpoint);
+        const response = await head(healthcheckEndpoint);
 
 				if (response.ok) {
 					return true;
@@ -28,42 +28,39 @@ export const authOptions: NextAuthOptions = {
 
 				return `/error?message=${response.statusText}&status=${response.status}`;
       } catch {
-        console.error('Internal Server Error');
         return '/error';
       }
     },
-		async jwt({ token, profile, trigger, session }) {
-			if (trigger === 'update' && session?.user?.ckey) {
-				token.ckey = session.user.ckey;
-				return token;
+		async jwt({ token, profile, trigger }) {
+			if (trigger === 'signIn' && profile) {
+				token.ckey = await getCkey(profile.id);
 			}
 
-			if (profile) {
-				try {
-					const response = await get(buildUrl(ckeyEndpoint, { discord_id: profile.id }));
-
-					if (response.status === 200) {
-						const ckey = await response.json();
-						token.ckey = ckey;
-					} else if (response.status !== 500) {
-						token.ckey = null;
-					} else {
-						token.ckey = undefined;
-					}
-				} catch {
-					token.ckey = undefined;
-					console.error('Internal Server Error');
-				}
+			if (trigger === 'update' && token.sub) {
+				token.ckey = await getCkey(token.sub);
 			}
 
 			return token;
 		},
 		async session({ session, token }) {
-			if (session?.user) {
-				session.user.ckey = token.ckey;
-				session.user.id = token.sub;
+			if (token.sub) {
+				session.user = { ...session.user, id: token.sub, ckey: token.ckey };
 			}
 			return session;
 		},
 	},
+};
+
+const getCkey = async (id: string): Promise<string | null | undefined> => {
+	try {
+		const response = await get(buildUrl(ckeyEndpoint, { discord_id: id }));
+
+		if (response.status === 200) {
+			return await response.json();
+		} else if (response.status !== 500) {
+			return null;
+		}
+	} catch {}
+
+	return undefined;
 };

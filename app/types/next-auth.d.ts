@@ -1,23 +1,35 @@
 import { DefaultSession } from 'next-auth';
+import { DiscordProfile } from 'next-auth/providers/discord';
 
 declare module 'next-auth' {
   interface Session {
-    user: {
-      id: string;
-			ckey: string | undefined | null;
-    } & DefaultSession['user'];
+    user?: DefaultSession['user'] & ({
+			// logged in but not verified
+			id: string;
+			ckey: null;
+		} | {
+			// logged in and verified
+			id: string;
+			ckey: string;
+		} | {
+			// logged in but internal error occurred during verification
+			id: string;
+			ckey: undefined;
+		});
   }
 
-  interface Profile {
-    id: string;
-		access_token: string;
-  }
+	// The OAuth profile returned from Discord provider.
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+	interface Profile extends DiscordProfile {}
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-		id: string;
-		sub: string;
-    ckey: string | undefined | null;
+		/**
+		 * - string: verified
+		 * - null: not verified
+		 * - undefined: internal error occurred
+		 */
+    ckey: string | null | undefined;
   }
 }

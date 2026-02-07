@@ -11,7 +11,9 @@ const removeFriendhipEndpoint = `${process.env.API_URL}/v2/player/remove_friend`
 const acceptFriendhipEndpoint = `${process.env.API_URL}/v2/player/accept_friend`;
 const declineFriendhipEndpoint = `${process.env.API_URL}/v2/player/decline_friend`;
 
-export async function verifyUser(code: string, id: string) {
+type VerifyResult = { success: false; message: string; } | { success: true; message: string; ckey: string };
+
+export async function verifyUser(code: string, id: string): Promise<VerifyResult> {
 	try {
 		const response = await post(verifyEndpont, { discord_id: id, one_time_token: code });
 
