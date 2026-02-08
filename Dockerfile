@@ -31,6 +31,7 @@ ENV AUTH_DISCORD_ID=1234567890
 ENV AUTH_DISCORD_SECRET=ABCDEFGHI
 ENV NEXTAUTH_SECRET=herhangi_bir_rastgele_uzun_karakter_dizisi
 ENV NEXTAUTH_URL=https://ss13.tr
+ENV VERIFY_WEBHOOK_URL=https://discord.com/api/webhooks/*
 
 USER bun
 EXPOSE 3000
