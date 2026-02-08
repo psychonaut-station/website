@@ -112,7 +112,14 @@ export default function Player({ player }: PlayerProps) {
 			{/* Ban History */}
 			<div className="w-full flex flex-col items-center gap-3 sm:px-14 lg:px-48">
 				<span className="text-center text-3xl font-bold">
-					<div className="h-0"><div className="relative left-[calc(100%+8px)] -top-2 w-4 h-4 opacity-60 hover:opacity-100 transition-opacity cursor-help flex" title="Yalnızca 23.08.2023'den itibaren kalıcı olan banlar listeleniyor"><Icon icon={faQuestion} className="w-full h-full" /></div></div>
+					<div className="h-0">
+						<div
+							className="relative left-[calc(100%+8px)] -top-2 w-4 h-4 opacity-60 hover:opacity-100 transition-opacity cursor-help flex"
+							title="Yalnızca 23.08.2023'den itibaren kalıcı olan banlar listeleniyor"
+						>
+							<Icon icon={faQuestion} className="w-full! h-full!" />
+						</div>
+					</div>
 					Ban Geçmişi
 				</span>
 				{player.bans.length ? (
