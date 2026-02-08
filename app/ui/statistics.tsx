@@ -5,7 +5,7 @@ import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx/lite';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { Line, Tooltip, TooltipProps, XAxis, YAxis } from 'recharts';
+import { Line, Tooltip, type TooltipContentProps, XAxis, YAxis } from 'recharts';
 import useSWRImmutable from 'swr/immutable';
 import { useDebounce } from 'use-debounce';
 
@@ -97,6 +97,7 @@ function Overview({ overview }: { overview: OverviewData[] }) {
 							cursor={{ opacity: 0.1 }}
 							contentStyle={{ background: 'transparent', border: 'none' }}
 							itemStyle={{ color: 'rgb(186 186 186)' }}
+							/* @ts-expect-error i couldnt figure out */
 							content={<OverviewTooltip category={selectedCategory} />}
 						/>
 						<Line dataKey={selectedCategory} dot={false} type="monotone" />
@@ -116,7 +117,7 @@ function Overview({ overview }: { overview: OverviewData[] }) {
 	);
 }
 
-function OverviewTooltip({ active, payload, label, category }: TooltipProps<number, string> & { category: OverviewCategory; }) {
+function OverviewTooltip({ active, payload, label, category }: TooltipContentProps<number, string> & { category: OverviewCategory; }) {
 	if (active && payload && payload.length) {
 		switch (category) {
 			case 'players':
