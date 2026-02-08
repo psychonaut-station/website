@@ -45,7 +45,7 @@ export default function SignIn() {
                 <span className="text-white font-medium">{session.user?.name}</span> olarak giriş yaptınız.
               </p>
             </div>
-						<Button onClick={() => router.push(callbackUrl || '/me')}>
+						<Button onClick={() => router.push(callbackUrl || '/')}>
 							<div className="flex items-center justify-center gap-2">
 								<span>Devam Et</span>
 								<Icon icon={faArrowRight}/>
