@@ -3,7 +3,7 @@ WORKDIR /app
 
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
-COPY package.json bun.lock .
+COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 FROM base AS builder
@@ -27,6 +27,11 @@ ENV CDN_URL=https://cdn.ss13.tr
 ENV SERVER_GITHUB=https://github.com/psychonaut-station/PsychonautStation
 ENV API_URL=https://api.ss13.tr
 ENV API_KEY=hello
+ENV AUTH_DISCORD_ID=1234567890
+ENV AUTH_DISCORD_SECRET=ABCDEFGHI
+ENV NEXTAUTH_SECRET=herhangi_bir_rastgele_uzun_karakter_dizisi
+ENV NEXTAUTH_URL=https://ss13.tr
+ENV VERIFY_WEBHOOK_URL=https://discord.com/api/webhooks/*
 
 USER bun
 EXPOSE 3000

@@ -1,55 +1,72 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-:root {
-	--background: #ffffff;
-	--foreground: #171717;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-system:
+    system-ui, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif,
+    Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+
+  --shadow-glow: 0 0 10px var(--tw-shadow-color);
+
+  --breakpoint-wide: 1400px;
+  --breakpoint-ultrawide: 1715px;
+  --breakpoint-huge: 2000px;
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
+@utility scrollbar-thumb-gray {
+  --tw-scrollbar-thumb: gray;
+  scrollbar-color: var(--tw-scrollbar-thumb, rgba(156, 163, 175, 0.5))
+    var(--tw-scrollbar-track, rgba(229, 231, 235, 0.5));
 }
 
-body {
-	color: var(--foreground);
-	background: var(--background);
-	font-synthesis: none;
+@utility scrollbar-track-transparent {
+  --tw-scrollbar-track: transparent;
+  scrollbar-color: var(--tw-scrollbar-thumb, rgba(156, 163, 175, 0.5))
+    var(--tw-scrollbar-track, rgba(229, 231, 235, 0.5));
 }
 
-input[type='number'] {
-	-moz-appearance: textfield;
-	appearance: textfield;
+@utility scrollbar-hidden {
+  scrollbar-width: none;
 }
 
-input[type='number']::-webkit-outer-spin-button,
-input[type='number']::-webkit-inner-spin-button {
-	-webkit-appearance: none;
+@utility scrolling-touch {
+  -webkit-overflow-scrolling: touch;
 }
 
-@layer components {
-	.scrollbar-thumb-gray {
-		--tw-scrollbar-thumb: gray;
-		scrollbar-color: var(--tw-scrollbar-thumb, rgba(156, 163, 175, 0.5)) var(--tw-scrollbar-track, rgba(229, 231, 235, 0.5));
-	}
+@utility pixelated {
+  image-rendering: pixelated;
+}
 
-	.scrollbar-track-transparent {
-		--tw-scrollbar-track: transparent;
-		scrollbar-color: var(--tw-scrollbar-thumb, rgba(156, 163, 175, 0.5)) var(--tw-scrollbar-track, rgba(229, 231, 235, 0.5));
-	}
+@layer utilities {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+  }
 
-	.scrollbar-hidden {
-		scrollbar-width: none;
-	}
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #0a0a0a;
+      --foreground: #ededed;
+    }
+  }
 
-	.scrollling-touch {
-		-webkit-overflow-scrolling: touch;
-	}
+  body {
+    color: var(--foreground);
+    background: var(--background);
+    font-synthesis: none;
+  }
 
-	.pixelated {
-		image-rendering: pixelated;
-	}
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
 }

@@ -1,0 +1,25 @@
+import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+
+import { getAuthSession } from '@/app/lib/auth';
+import { getPlayer } from '@/app/lib/data';
+import Player from '@/app/ui/player';
+
+async function Me() {
+	const session = await getAuthSession();
+
+	// proxy/auth.ts ensures user is authenticated before reaching here
+	const player = await getPlayer(session!.user!.ckey!);
+
+	if (!player) notFound();
+
+	return <Player player={player}></Player>;
+}
+
+export default async function Page() {
+	return (
+		<Suspense>
+			<Me/>
+		</Suspense>
+	);
+}

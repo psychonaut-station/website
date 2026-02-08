@@ -221,7 +221,7 @@ export default function Carousel({
 	return (
 		<div className="w-full flex items-center gap-3 relative">
 			<button
-				className="p-2 rounded-full focus:outline-none bg-slate-100 bg-opacity-0 hover:bg-opacity-20 disabled:opacity-40 transition-colors"
+				className="p-2 rounded-full focus:outline-hidden bg-slate-100/0 hover:bg-slate-100/20 disabled:opacity-40 transition-colors"
 				style={{ cursor: canScrollLeft ? 'pointer' : 'not-allowed' }}
 				onClick={() => scrollByItems('left')}
 				disabled={!canScrollLeft}
@@ -230,7 +230,7 @@ export default function Carousel({
 				<span className="text-xl">‹</span>
 			</button>
 			<div
-				className="overflow-x-auto overflow-y-visible scrollbar-hidden flex gap-2 py-2 px-1 touch-pan-x cursor-grab w-full scrollling-touch"
+				className="overflow-x-auto overflow-y-visible scrollbar-hidden flex gap-2 py-2 px-1 touch-pan-x cursor-grab w-full scrolling-touch"
 				style={{ maxWidth: `${desiredClientWidth}px`, ...(!canScrollLeft && !canScrollRight) && { justifyContent: 'center' } }}
 				ref={containerRef}
 				onScroll={() => updateButtons()}
@@ -240,7 +240,7 @@ export default function Carousel({
 				</div>
 			</div>
 			<button
-				className="p-2 rounded-full focus:outline-none bg-slate-100 bg-opacity-0 hover:bg-opacity-20 disabled:opacity-40 transition-colors"
+				className="p-2 rounded-full focus:outline-hidden bg-slate-100/0 hover:bg-slate-100/20 disabled:opacity-40 transition-colors"
 				style={{ cursor: canScrollRight ? 'pointer' : 'not-allowed' }}
 				onClick={() => scrollByItems('right')}
 				disabled={!canScrollRight}

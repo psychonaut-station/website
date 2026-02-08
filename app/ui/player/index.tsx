@@ -1,20 +1,40 @@
 'use client';
 
-import { faArrowDown, faArrowUp, faQuestion } from '@fortawesome/free-solid-svg-icons';
+import {
+	faArrowDown,
+	faArrowUp,
+	faQuestion,
+	faSpinner,
+	faUserCheck,
+	faUserClock,
+	faUserFriends,
+	faUserMinus,
+	faUserPlus,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx/lite';
 import dayjs from 'dayjs';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Bar, Line, Tooltip, type TooltipContentProps, XAxis, YAxis } from 'recharts';
+import useSWR from 'swr';
 
+import {
+	acceptFriend,
+	addFriend,
+	declineFriend,
+	removeFriend,
+} from '@/app/lib/actions';
 import { achievementsIcons, roles } from '@/app/lib/constants';
-import type { Player } from '@/app/lib/definitions';
+import type { Friendship, Player } from '@/app/lib/definitions';
+import fetcher from '@/app/lib/fetcher';
 import { achievementsImageLoader } from '@/app/lib/image-loader';
 import { relativeTime } from '@/app/lib/time';
 import Button from '@/app/ui/button';
 import Carousel from '@/app/ui/carousel';
-import { BarChart, LineChart} from '@/app/ui/chart';
+import { BarChart, LineChart } from '@/app/ui/chart';
 import { NumberInput } from '@/app/ui/input';
 import { Navigation } from '@/app/ui/navigation';
 
@@ -31,7 +51,14 @@ export default function Player({ player }: PlayerProps) {
 		<div className="w-full max-w-full flex-1 flex flex-col items-center gap-5">
 			{/* Basic Info */}
 			<div className="max-w-full flex flex-col items-center gap-3">
-				<span className="max-w-full text-center text-5xl font-bold overflow-hidden text-ellipsis">{player.byond_key}</span>
+				<div className="w-full flex justify-center items-center">
+					<div className="relative">
+						<span className="text-5xl font-bold overflow-hidden text-ellipsis whitespace-nowrap max-w-[80vw]">
+							{player.byond_key || player.ckey}
+						</span>
+						<FriendButton player={player} />
+					</div>
+				</div>
 				<span>İlk Görülen Round: {player.first_seen_round}</span>
 				<span>Son Görülen Round: {player.last_seen_round}</span>
 				<span>İlk Görülen Tarih: <span title={`${relativeTime(player.first_seen)} önce`}>{player.first_seen}</span></span>
@@ -85,7 +112,14 @@ export default function Player({ player }: PlayerProps) {
 			{/* Ban History */}
 			<div className="w-full flex flex-col items-center gap-3 sm:px-14 lg:px-48">
 				<span className="text-center text-3xl font-bold">
-					<div className="h-0"><div className="relative left-[calc(100%+8px)] -top-2 w-4 h-4 opacity-60 hover:opacity-100 transition-opacity cursor-help flex" title="Yalnızca 23.08.2023'den itibaren kalıcı olan banlar listeleniyor"><Icon icon={faQuestion} className="w-full h-full" /></div></div>
+					<div className="h-0">
+						<div
+							className="relative left-[calc(100%+8px)] -top-2 w-4 h-4 opacity-60 hover:opacity-100 transition-opacity cursor-help flex"
+							title="Yalnızca 23.08.2023'den itibaren kalıcı olan banlar listeleniyor"
+						>
+							<Icon icon={faQuestion} className="w-full! h-full!" />
+						</div>
+					</div>
 					Ban Geçmişi
 				</span>
 				{player.bans.length ? (
@@ -294,12 +328,12 @@ function ActivityTooltip({ active, payload, label, slope }: TooltipContentProps<
 			<div className="flex gap-2">
 				<span className="text-[#64748B]">{rounds.toString()} round</span>
 				{average > 0 && (
-					<span className={`${rounds > average ? 'text-green-300' : 'text-red-300'} text-opacity-50 transition-colors`}>{(Math.round(average * 10) / 10).toString().replace('.', ',')} ort.</span>
+					<span className={clsx(rounds > average && 'text-green-300/50' || 'text-red-300/50', 'transition-colors')}>{(Math.round(average * 10) / 10).toString().replace('.', ',')} ort.</span>
 				)}
 				{slope !== 0 && (slope > 0 ? (
-					<span className="text-green-300 text-opacity-50"><Icon icon={faArrowUp} /></span>
+					<span className="text-green-300/50"><Icon icon={faArrowUp} /></span>
 				) : (
-					<span className="text-red-300 text-opacity-50"><Icon icon={faArrowDown} /></span>
+					<span className="text-red-300/50"><Icon icon={faArrowDown} /></span>
 				))}
 			</div>
 		</div>
@@ -317,13 +351,13 @@ function Achievements({ achievements }: AchievementsProps) {
 				{achievements.map(({ achievement_name, achievement_description, achievement_key }) =>
 					<div
 						key={achievement_key}
-						className="flex-shrink-0 w-[76px] h-[76px] rounded-md flex items-center justify-center border border-transparent hover:border-slate-300 hover:border-opacity-20 select-none"
+						className="shrink-0 w-19 h-19 rounded-md flex items-center justify-center border border-transparent hover:border-slate-300/20 select-none"
 						title={`${achievement_name}\n${achievement_description}`}
 						aria-label={achievement_key}
 						role="img"
 					>
 						<Image
-							className="rounded-sm object-cover pixelated"
+							className="rounded-xs object-cover pixelated"
 							src={`${achievementsIcons[achievement_key] ?? achievement_key}.png`}
 							loader={achievementsImageLoader}
 							alt={achievement_name || 'Başarım'}
@@ -383,5 +417,78 @@ function BanHistory({ bans }: BanHistoryProps) {
 			</div>
 			<Navigation id="bans-navigation" value={currentBan} min={1} max={bans.length} onPrevious={onPrevious} onNext={onNext} onChange={onInputChange} />
 		</>
+	);
+}
+
+function FriendButton({ player }: { player: Player; }) {
+	const { data: session } = useSession();
+
+	const ckey = session?.user?.ckey;
+	const self = ckey === player.ckey;
+
+	const { data: friendship, isLoading, error, mutate } = useSWR<Friendship | null>(`/api/player/friends/check-friendship?friend=${player.ckey}`, fetcher, {
+		isPaused: () => self || !ckey,
+	});
+
+	// workaround for SWR not calling the API after session loads
+	const shouldFetch = useRef(false);
+
+	useEffect(() => {
+		if (!shouldFetch.current && ckey && !self) {
+			shouldFetch.current = true;
+			mutate();
+		}
+	}, [ckey, self, mutate]);
+
+	if (self || !ckey) {
+		return <></>;
+	}
+
+	if (error) {
+		console.error('Error fetching friendship status:', error);
+	}
+
+	const btnBase = 'absolute left-full ml-2 top-0 -translate-y-1/2 transform hover:scale-110 transition-transform duration-300 cursor-pointer';
+
+	if (isLoading) {
+		return (
+			<div className={btnBase}>
+				<Icon icon={faSpinner} spin />
+			</div>
+		);
+	}
+
+	if (friendship === undefined ) {
+		return <></>;
+	}
+
+	if (friendship?.status === 'pending') {
+		if (friendship.user_ckey === session?.user?.ckey) { // sent request
+			return (
+				<button className={`group ${btnBase}`} onClick={async () => await declineFriend(friendship.id).then(mutate)}>
+					<Icon icon={faUserClock} className="block! group-hover:hidden!" />
+					<Icon icon={faUserMinus} className="hidden! group-hover:block!" />
+				</button>
+			);
+		} else if (friendship.friend_ckey === session?.user?.ckey) {
+			return (
+				<button className={btnBase} onClick={async () => await acceptFriend(friendship.id).then(mutate)}>
+					<Icon icon={faUserCheck} />
+				</button>
+			);
+		}
+	} else if (friendship?.status === 'accepted') {
+		return (
+			<button className={`group ${btnBase}`} onClick={async () => await removeFriend(friendship.id).then(mutate)}>
+				<Icon icon={faUserFriends} className="block! group-hover:hidden!" />
+				<Icon icon={faUserMinus} className="hidden! group-hover:block!" />
+			</button>
+		);
+	}
+
+	return (
+		<button className={btnBase} onClick={async () => await addFriend(player.ckey).then(mutate)}>
+			<Icon icon={faUserPlus} />
+		</button>
 	);
 }

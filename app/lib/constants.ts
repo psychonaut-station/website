@@ -159,6 +159,10 @@ export const departmentColors: Record<string, string> = {
   Cargo: '#b88646',
   Service: '#6ca729',
   Silicon: '#56d3ad',
+
+	Antagonist: '#ff66aa',
+
+	Server: '#56d3ad',
 };
 
 export const jobDepartments: Record<string, string> = {
@@ -215,6 +219,33 @@ export const jobDepartments: Record<string, string> = {
 	'Lawyer': 'Service',
 	'Chaplain': 'Service',
 	'Psychologist': 'Service',
+
+	// Antagonist roles
+	'Abductor': 'Antagonist',
+	'Blob': 'Antagonist',
+	'Blood Brother': 'Antagonist',
+	'Changeling': 'Antagonist',
+	'Cultist': 'Antagonist',
+	'Head Revolutionary': 'Antagonist',
+	'Heretic': 'Antagonist',
+	'Hivemind Host': 'Antagonist',
+	'Malf AI': 'Antagonist',
+	'Operative': 'Antagonist',
+	'Revenant': 'Antagonist',
+	'Revolutionary': 'Antagonist',
+	'Space Ninja': 'Antagonist',
+	'Spider': 'Antagonist',
+	'Spy': 'Antagonist',
+	'Syndicate': 'Antagonist',
+	'Syndicate Mutineer': 'Antagonist',
+	'Traitor': 'Antagonist',
+	'Voidwalker': 'Antagonist',
+	'Wizard': 'Antagonist',
+	'Xenomorph': 'Antagonist',
+
+	// Abstract roles
+	'security': 'Security', // intentional lowercase
+	'Server': 'Server',
 };
 
 export const threatTiers = ['Greenshift', 'Düşük Kaos', 'Düşük-Orta Kaos', 'Orta-Yüksek Kaos', 'Yüksek Kaos'];

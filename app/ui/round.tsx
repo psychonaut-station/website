@@ -2,6 +2,7 @@
 
 import '@/app/styles/round-report.css';
 
+import clsx from 'clsx/lite';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect } from 'react';
@@ -114,21 +115,18 @@ function Players({ antagonists, stats }: PlayersProps) {
 				<span className="text-center text-3xl font-bold">Oyuncular</span>
 				<div className="flex flex-wrap justify-center gap-2 px-2 py-6 sm:px-14 md:px-18 xl:px-60">
 					{sortedLiving.map(({ name, ckey: key, job, species, module }, index) => {
-						const department = job ? jobDepartments[job] : '';
-						const colorStyle = { '--color': departmentColors[department] ?? '#c5c5c5' } as React.CSSProperties;
-
+						const colorStyle = { '--color': departmentColors[jobDepartments[job ?? '']] ?? '#c5c5c5' } as React.CSSProperties;
 						const antagonist = antagonists.filter(player => player.key === key && player.name === name);
-
 						const ckey = key && key.toLowerCase().replace(/[^a-z0-9-_]/g, ''); // ckey in roundend log is infact not ckey
 
 						return (
 							<Tooltip key={index} content={
-								<div className="flex flex-col gap-1 items-center min-w-64 max-w-96 w-max px-3 py-2 backdrop-blur-[12px] border border-gray-700 rounded-md shadow-lg text-sm text-white">
+								<div className="flex flex-col gap-1 items-center min-w-64 max-w-96 w-max px-3 py-2 backdrop-blur-md border border-gray-700 rounded-md shadow-lg text-sm text-white">
 									<span className="font-bold text-lg flex flex-col items-center">
 										{name}
 										{key && <span className="font-normal text-sm text-gray-400">{key}</span>}
 									</span>
-									{job && <span className="text-[--color]" style={colorStyle}>{job}{module && ` (${module})`}</span>}
+									{job && <span className="text-(--color)" style={colorStyle}>{job}{module && ` (${module})`}</span>}
 									{species && <span>{species}</span>}
 									{antagonist.length > 0 && (
 										<>
@@ -140,7 +138,7 @@ function Players({ antagonists, stats }: PlayersProps) {
 									)}
 								</div>
 							}>
-								<Link href={ckey && `/players/${ckey}` || '#'} className="text-center border px-2 py-1 rounded-[.25rem] text-[--color] border-[--color] hover:bg-[--color] hover:text-black transition-colors cursor-pointer" style={colorStyle}>{name}</Link>
+								<Link href={ckey && `/players/${ckey}` || '#'} className="text-center border px-2 py-1 rounded-sm text-(--color) border-(--color) hover:bg-(--color) hover:text-black transition-colors cursor-pointer" style={colorStyle}>{name}</Link>
 							</Tooltip>
 						);
 					})}
@@ -154,7 +152,7 @@ function Players({ antagonists, stats }: PlayersProps) {
 							const ckey = key && key.toLowerCase().replace(/[^a-z0-9-_]/g, ''); // ckey in roundend log is infact not ckey
 
 							return (
-								<Link key={index} href={ckey && `/players/${ckey}` || '#'} className="border px-2 py-1 rounded-[.25rem] text-slate-400 border-slate-400 hover:bg-slate-400 hover:text-black transition-colors cursor-pointer">{ckey}</Link>
+								<Link key={index} href={ckey && `/players/${ckey}` || '#'} className="border px-2 py-1 rounded-sm text-slate-400 border-slate-400 hover:bg-slate-400 hover:text-black transition-colors cursor-pointer">{ckey}</Link>
 							);
 					})}
 				</div>
@@ -203,7 +201,17 @@ function Logs({ logs }: LogsProps) {
 			<span className="text-center text-3xl font-bold">Loglar</span>
 			<div className="flex flex-wrap justify-center gap-2 px-2 py-6 sm:px-14 md:px-18 xl:px-60">
 				{logs.map(({ name, src }, index) => (
-					<Link key={index} href={src || '#'} prefetch={false} className={`border ${src ? 'border-green-500 text-green-500 hover:bg-green-500' : 'border-gray-400 text-gray-400 hover:bg-gray-400 cursor-not-allowed'} hover:text-black px-2 py-1 rounded-[.25rem] text-sm transition-colors`}>{name}</Link>
+					<Link
+						key={index}
+						href={src || '#'}
+						prefetch={false}
+						className={clsx(
+							'border hover:text-black px-2 py-1 rounded-sm text-sm transition-colors',
+							src && 'border-green-500 text-green-500 hover:bg-green-500' || 'border-gray-400 text-gray-400 hover:bg-gray-400 cursor-not-allowed',
+						)}
+					>
+						{name}
+					</Link>
 				))}
 			</div>
 		</div>
@@ -233,14 +241,14 @@ function Pictures({ pictures }: PicturesProps) {
 				>
 					{pictures.map(({ name, id, caption, desc, src }, index) => (
 						<Tooltip key={index} content={
-							<div className="flex flex-col gap-3 items-center min-w-64 max-w-96 w-max px-3 py-2 backdrop-blur-[12px] border border-gray-700 rounded-md shadow-lg">
+							<div className="flex flex-col gap-3 items-center min-w-64 max-w-96 w-max px-3 py-2 backdrop-blur-md border border-gray-700 rounded-md shadow-lg">
 								<span className="font-bold">{name}</span>
 								{id && <div className="text-sm text-gray-400">{id}</div>}
 								{caption}
 								{desc && <div dangerouslySetInnerHTML={{ __html: desc }}/>}
 							</div>
 						}>
-							<div className="bg-black bg-opacity-30 rounded-md p-2 flex flex-col gap-2 items-center shadow-sm hover:shadow-md transition max-w-[45vw] sm:max-w-[192px]">
+							<div className="bg-black/30 rounded-md p-2 flex flex-col gap-2 items-center shadow-xs hover:shadow-md transition max-w-[45vw] sm:max-w-48">
 								<Image
 									src={src}
 									loader={pictureImageLoader}

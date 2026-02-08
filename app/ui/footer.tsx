@@ -20,7 +20,7 @@ export default function Footer() {
 							<span>{label}</span>
 						</div>
 					</Link>
-					{index !== links.length - 1 && <div className="w-[1px] h-5 bg-white opacity-20"></div>}
+					{index !== links.length - 1 && <div className="w-px h-5 bg-white opacity-20"></div>}
 				</Fragment>
 			))}
 		</div>

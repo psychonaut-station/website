@@ -1,0 +1,41 @@
+import { type NextRequest, NextResponse } from 'next/server';
+import * as z from 'zod';
+
+import { getAuthSession } from '@/app/lib/auth';
+import { buildUrl } from '@/app/lib/data';
+import { get } from '@/app/lib/headers';
+
+const endpoint = `${process.env.API_URL}/v2/player/check_friends`;
+
+const QuerySchema = z.object({
+	friend: z.string().min(1).max(32),
+});
+
+export async function GET(request: NextRequest) {
+	const { success, data } = QuerySchema.safeParse(Object.fromEntries(request.nextUrl.searchParams));
+
+	if (!success) {
+		return new NextResponse('Bad Request', { status: 400 });
+	}
+
+	const session = await getAuthSession();
+	const ckey = session?.user?.ckey;
+
+	if (!ckey) {
+		return new NextResponse('Unauthorized', { status: 401 });
+	}
+
+	const { friend } = data;
+
+	try {
+		const response = await get(buildUrl(endpoint, { ckey, friend }));
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch');
+		}
+
+		return NextResponse.json(await response.json());
+	} catch {
+		return new NextResponse('Internal Server Error', { status: 500 });
+	}
+}

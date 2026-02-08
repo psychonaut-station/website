@@ -26,7 +26,7 @@ export default function NavLinks() {
 				<Image src={logo} alt="Psychonaut Station logo" quality={100} priority />
 				<span className="text-center text-5xl font-mono">Psychonaut Station</span>
 			</div>
-			<div id="navigation" className="flex flex-wrap items-center justify-center gap-4 py-6 mt-[1px]">
+			<div id="navigation" className="flex flex-wrap items-center justify-center gap-4 py-6 mt-px">
 				{navigation.map(({ href, label, external, blank, sub }) => (
 					<Link key={href} href={href} prefetch={!external} {...(blank && { target: '_blank', rel: 'noreferrer external' })}>
 						<Button active={sub ? pathname.startsWith(href) : pathname === href}>

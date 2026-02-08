@@ -2,22 +2,24 @@
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx/lite';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Line, Tooltip, TooltipProps, XAxis, YAxis } from 'recharts';
+import { useEffect, useMemo, useState } from 'react';
+import { Line, Tooltip, type TooltipContentProps, XAxis, YAxis } from 'recharts';
 import useSWRImmutable from 'swr/immutable';
 import { useDebounce } from 'use-debounce';
 
+import { useScrollInto } from '@/app/hooks/useScrollInto';
 import { threatTiers } from '@/app/lib/constants';
 import { Citation, Death, OverviewData } from '@/app/lib/definitions';
 import fetcher from '@/app/lib/fetcher';
 import { minutesToHours } from '@/app/lib/time';
 import { LineChart } from '@/app/ui/chart';
-import { Navigation } from '@/app/ui/navigation';
+import { Pagination } from '@/app/ui/navigation';
 
 export default function Statistics({ statistics }: { statistics: OverviewData[] }) {
 	return (
-		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 sm:px-14 lg:px-[13.5rem]">
+		<div className="w-full flex-1 flex flex-col items-center gap-5 px-2 pt-8 sm:px-14 lg:px-54">
 			<div className="w-full flex flex-col items-center gap-5">
 				<span className="text-center text-3xl font-bold mb-4">Genel Bakış</span>
 				<Overview overview={statistics}/>
@@ -64,11 +66,20 @@ function Overview({ overview }: { overview: OverviewData[] }) {
 	return (
 		<div className="w-full flex flex-col md:flex-row">
 			<div className="max-md:w-full h-min flex flex-col">
-				<div className="max-md:w-full h-min p-4 bg-gray-700 bg-opacity-10 rounded-[.25rem]">
+				<div className="max-md:w-full h-min p-4 bg-gray-700/10 rounded-sm">
 					<h2 className="mb-4 text-white text-lg font-bold text-center md:text-base">Kategoriler</h2>
 					<ul className="space-y-2 [&>li]:px-4 [&>li]:py-2">
 						{Object.entries(overviewCategories).map(([category, name]) => (
-							<li key={category} className={`${selectedCategory === category && 'bg-gray-500'} text-center cursor-pointer rounded-lg text-white hover:bg-gray-500 transition-colors text-nowrap`} onClick={() => setSelectedCategory(category as OverviewCategory)}>{name}</li>
+							<li
+								key={category}
+								className={clsx(
+									selectedCategory === category && 'bg-gray-500',
+									'text-center cursor-pointer rounded-lg text-white hover:bg-gray-500 transition-colors text-nowrap',
+								)}
+								onClick={() => setSelectedCategory(category as OverviewCategory)}
+							>
+								{name}
+							</li>
 						))}
 					</ul>
 				</div>
@@ -86,6 +97,7 @@ function Overview({ overview }: { overview: OverviewData[] }) {
 							cursor={{ opacity: 0.1 }}
 							contentStyle={{ background: 'transparent', border: 'none' }}
 							itemStyle={{ color: 'rgb(186 186 186)' }}
+							/* @ts-expect-error i couldnt figure out */
 							content={<OverviewTooltip category={selectedCategory} />}
 						/>
 						<Line dataKey={selectedCategory} dot={false} type="monotone" />
@@ -105,7 +117,7 @@ function Overview({ overview }: { overview: OverviewData[] }) {
 	);
 }
 
-function OverviewTooltip({ active, payload, label, category }: TooltipProps<number, string> & { category: OverviewCategory; }) {
+function OverviewTooltip({ active, payload, label, category }: TooltipContentProps<number, string> & { category: OverviewCategory; }) {
 	if (active && payload && payload.length) {
 		switch (category) {
 			case 'players':
@@ -186,93 +198,64 @@ function Events() {
 	const [pageSize, setPageSize] = useState<PageSizeOption>(20);
 
 	type Data = { data: Death[] | Citation[]; total_count: number; };
-
-	const [shownData, setShownData] = useState<Data | null>(null);
-
-	const { data, error, isLoading } = useSWRImmutable<Data>(`/api/events/${selectedCategory}?page=${debouncedPage}&fetch_size=${pageSize}`, fetcher);
-
+	const [optimisticEvents, setOptimisticEvents] = useState<Data | null>(null);
+	const { data: events, error, isLoading } = useSWRImmutable<Data>(`/api/events/${selectedCategory}?page=${debouncedPage}&fetch_size=${pageSize}`, fetcher);
 	useSWRImmutable(`/api/events/${selectedCategory}?page=${debouncedPage + 1}&fetch_size=${pageSize}`, fetcher);
 
 	useEffect(() => {
-		if (data) {
-			setShownData(data);
-		}
-	}, [data]);
+		if (events) setOptimisticEvents(events);
+	}, [events]);
 
-	const maxPage = useMemo(() => Math.ceil((shownData?.total_count ?? 1) / pageSize), [pageSize, shownData?.total_count]);
-
-	useEffect(() => {
-		if (page > maxPage) {
-			setPage(maxPage);
-		}
-	}, [page, maxPage]);
-
-	const lastLength = useRef(0);
-
-	useEffect(() => {
-		if (shownData?.data.length) {
-			if (lastLength.current !== 0) {
-				setTimeout(() => {
-					document.getElementById('events-navigation')?.scrollIntoView({
-						block: 'end',
-						inline: 'nearest',
-						behavior: 'smooth',
-					});
-				}, 1);
-			}
-			lastLength.current = shownData.data.length;
-		}
-	}, [shownData?.data.length]);
-
-	const onNext = useCallback(() => {
-		setPage((prev) => Math.min(prev + 1, maxPage));
-	}, [maxPage]);
-
-	const onPrevious = useCallback(() => {
-		setPage((prev) => Math.max(prev - 1, 1));
-	}, []);
-
-	const onChange = useCallback((value: number) => {
-		setPage(Math.min(Math.max(value, 1), maxPage));
-	}, [maxPage]);
+	// todo: sayfa değiştirip geri dönünce scroll yapmaması gerekirken yapıyor
+	useScrollInto('events-navigation', optimisticEvents);
 
 	return (
 		<div className="w-full flex flex-col md:flex-row md:space-x-4">
-			<div className="max-md:w-full h-min p-4 mb-4 bg-gray-700 bg-opacity-10 rounded-[.25rem]">
+			<div className="max-md:w-full h-min p-4 mb-4 bg-gray-700/10 rounded-sm">
 				<h2 className="mb-4 text-white text-lg font-bold text-center md:text-base">Kategoriler</h2>
 				<ul className="space-y-2 [&>li]:px-4 [&>li]:py-2">
 					{Object.entries(eventCategories).map(([category, name]) => (
-						<li key={category} className={`${selectedCategory === category && 'bg-gray-500'} text-center cursor-pointer rounded-lg text-white hover:bg-gray-500 transition-colors text-nowrap`} onClick={() => setSelectedCategory(category as EventCategory)}>{name}</li>
+						<li
+							key={category}
+							className={clsx(
+								selectedCategory === category && 'bg-gray-500',
+								'text-center cursor-pointer rounded-lg text-white hover:bg-gray-500 transition-colors text-nowrap',
+							)}
+							onClick={() => setSelectedCategory(category as EventCategory)}
+						>
+							{name}
+						</li>
 					))}
 				</ul>
 			</div>
 			<div className="max-md:w-full md:flex-1 bg-gray px-4 rounded-xl">
-				{isLoading && !shownData && !error && (
+				{isLoading && !optimisticEvents && !error && (
 					<div className="w-full flex items-center justify-center">
 						<div className="w-12 h-12 flex items-center justify-center opacity-50">
 							<Icon icon={faSpinner} size="3x" spin />
 						</div>
 					</div>
 				)}
-				{shownData && (
+				{!!optimisticEvents && (
 					<ul>
-						{shownData.data.map((item, index) => <Event key={index} item={item} />)}
+						{optimisticEvents.data.map((item, index) => <Event key={index} item={item} />)}
 					</ul>
 				)}
-				{error && (
+				{!!error && (
 					<div className="w-full flex items-center justify-center">
 						<span className="text-red-500">An error has occurred: {error.message}</span>
 					</div>
 				)}
-				<div className="flex justify-between items-center mt-4">
-					<div className="ml-2 space-x-4" title="Sayfa boyutu">
-						{pageSizeOptions.map(size => <span key={size} className={`${size === pageSize && 'underline'} hover:underline cursor-pointer`} onClick={() => setPageSize(size)}>{size}</span>)}
-					</div>
-					<div className="flex items-center gap-1">
-						{shownData && isLoading && <span className="w-5 flex justify-center opacity-50"><Icon icon={faSpinner} spin /></span>}
-						<Navigation id="events-navigation" value={page} min={1} max={maxPage} onPrevious={onPrevious} onNext={onNext} onChange={onChange} />
-					</div>
-				</div>
+				<Pagination
+					id="events-navigation"
+					page={page}
+					size={pageSize}
+					options={pageSizeOptions}
+					totalCount={optimisticEvents?.total_count}
+					loading={optimisticEvents !== null && isLoading}
+					onPageChange={setPage}
+					onPageSizeChange={(size) => { setPageSize(size as PageSizeOption); setPage(1); }}
+				/>
 			</div>
 		</div>
 	);
@@ -281,7 +264,7 @@ function Events() {
 function Event({ item }: { item: Death | Citation }) {
 	if ('name' in item) {
 		return (
-			<li className="p-4 mb-4 bg-gray-600 bg-opacity-10 text-white rounded-[.25rem]">
+			<li className="p-4 mb-4 bg-gray-600/10 text-white rounded-sm">
 				<div className="w-full flex flex-col">
 					<div className="flex items-center justify-between gap-1">
 						<div className="inline">
@@ -291,8 +274,8 @@ function Event({ item }: { item: Death | Citation }) {
 					</div>
 					<div className="w-full mt-2 flex justify-between">
 						<div className="flex flex-wrap gap-2">
-							<Link href={`/rounds/${item.round_id}`} className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-black px-2 py-1 rounded-[.25rem] text-xs transition-colors">Round {item.round_id}</Link>
-							{item.suicide && <div className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-black px-2 py-1 rounded-[.25rem] text-xs">İntihar</div>}
+							<Link href={`/rounds/${item.round_id}`} className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-black px-2 py-1 rounded-sm text-xs transition-colors">Round {item.round_id}</Link>
+							{item.suicide && <div className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-black px-2 py-1 rounded-sm text-xs">İntihar</div>}
 						</div>
 						<div className="flex items-center gap-2 [&>span]:text-sm">
 							<span title="Brute" className="text-red-500">{item.bruteloss}</span>
@@ -308,7 +291,7 @@ function Event({ item }: { item: Death | Citation }) {
 
 	if ('sender' in item) {
 		return (
-			<li className="p-4 mb-4 bg-gray-600 bg-opacity-10 text-white rounded-[.25rem]">
+			<li className="p-4 mb-4 bg-gray-600/10 text-white rounded-sm">
 				<div className="w-full flex flex-col">
 					<div className="flex items-center justify-between gap-1">
 						<div className="inline">
@@ -325,7 +308,7 @@ function Event({ item }: { item: Death | Citation }) {
 					)}
 					<div className="w-full mt-2 flex">
 						<div className="flex flex-wrap">
-							<Link href={`/rounds/${item.round_id}`} className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-black px-2 py-1 rounded-[.25rem] text-xs transition-colors">Round {item.round_id}</Link>
+							<Link href={`/rounds/${item.round_id}`} className="border border-red-400 text-red-400 hover:bg-red-400 hover:text-black px-2 py-1 rounded-sm text-xs transition-colors">Round {item.round_id}</Link>
 						</div>
 					</div>
 				</div>

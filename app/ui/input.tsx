@@ -1,5 +1,6 @@
 'use client';
 
+import clsx from 'clsx/lite';
 import { useEffect, useRef } from 'react';
 
 type NumberInputProps = {
@@ -52,7 +53,10 @@ export function NumberInput(props: NumberInputProps) {
 	return (
 		<input
 			{...props}
-			className={[props.className, 'bg-transparent outline-none text-center caret-white transition-opacity'].join(' ')}
+			className={clsx(
+				'bg-transparent outline-hidden text-center caret-white transition-opacity',
+				props.className,
+			)}
 			ref={inputRef}
 			type="number"
 		/>
