@@ -8,10 +8,16 @@ export const metadata: Metadata = {
 };
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ message?: string; status?: string }> }) {
-	const { message, status } = await searchParams;
+	const params = searchParams.then(({ message, status }) => ({ message, status }));
+
 	return (
 		<Suspense>
-			<Error message={message || 'Internal Server Error'} status={Number(status) || 500} />
+			<ErrorPage params={params} />
 		</Suspense>
 	);
+}
+
+async function ErrorPage({ params }: { params: Promise<{ message?: string; status?: string }> }) {
+	const { message, status } = await params;
+	return <Error message={message || 'Internal Server Error'} status={Number(status) || 500} />;
 }
