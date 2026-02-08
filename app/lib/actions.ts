@@ -12,13 +12,15 @@ const removeFriendhipEndpoint = `${process.env.API_URL}/v2/player/remove_friend`
 const acceptFriendhipEndpoint = `${process.env.API_URL}/v2/player/accept_friend`;
 const declineFriendhipEndpoint = `${process.env.API_URL}/v2/player/decline_friend`;
 
+const verifyWebhook = process.env.VERIFY_WEBHOOK_URL!;
+
 type VerifyResult = { success: false; message: string; } | { success: true; message: string; ckey: string };
 
 export async function verifyUser(code: string): Promise<VerifyResult> {
 	const session = await getAuthSession();
-	const id = session?.user?.id;
+	const user = session?.user;
 
-	if (!id) {
+	if (!user) {
 		return {
 			success: false,
 			message: 'Unauthorized',
@@ -26,7 +28,7 @@ export async function verifyUser(code: string): Promise<VerifyResult> {
 	}
 
 	try {
-		const response = await post(verifyEndpoint, { discord_id: id, one_time_token: code });
+		const response = await post(verifyEndpoint, { discord_id: user.id, one_time_token: code });
 
 		if (!response.ok) {
 			if (response.status === 404) {
@@ -45,6 +47,15 @@ export async function verifyUser(code: string): Promise<VerifyResult> {
 		}
 
 		const ckey = await response.json();
+
+		await fetch(verifyWebhook, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				content: `<@${user.id}> hesabını \`${ckey}\` adlı BYOND hesabına bağladı.\n-# ${user.displayName} ${user.name} ${user.id} ${ckey}`,
+				allowedMentions: { parse: [] },
+			}),
+		});
 
 		return {
 			success: true,

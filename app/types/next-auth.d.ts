@@ -6,14 +6,17 @@ declare module 'next-auth' {
     user?: DefaultSession['user'] & ({
 			// logged in but not verified
 			id: string;
+			displayName: string;
 			ckey: null;
 		} | {
 			// logged in and verified
 			id: string;
+			displayName: string;
 			ckey: string;
 		} | {
 			// logged in but internal error occurred during verification
 			id: string;
+			displayName: string;
 			ckey: undefined;
 		});
   }
@@ -31,5 +34,6 @@ declare module 'next-auth/jwt' {
 		 * - undefined: internal error occurred
 		 */
     ckey: string | null | undefined;
+		displayName: string;
   }
 }

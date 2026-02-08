@@ -34,6 +34,7 @@ export const authOptions: NextAuthOptions = {
 		async jwt({ token, profile, trigger }) {
 			if (trigger === 'signIn' && profile) {
 				token.ckey = await getCkey(profile.id);
+				token.displayName = profile.global_name || profile.username;
 			}
 
 			if (trigger === 'update' && token.sub) {
@@ -44,7 +45,12 @@ export const authOptions: NextAuthOptions = {
 		},
 		async session({ session, token }) {
 			if (token.sub) {
-				session.user = { ...session.user, id: token.sub, ckey: token.ckey };
+				session.user = {
+					...session.user,
+					id: token.sub,
+					ckey: token.ckey,
+					displayName: token.displayName
+				};
 			}
 			return session;
 		},
