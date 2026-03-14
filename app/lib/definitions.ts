@@ -99,8 +99,11 @@ export type ExtendedRoundData = RoundData & {
 		name: string;
 		src: string | null;
 	}[];
+	round_character_logs: RoundCharacterLogs | [];
 	roundend_stats: RoundStats | null;
 };
+
+export type RoundCharacterLogs = Record<string, { name: string; ckey: string; icon: string }>;
 
 export type Picture = {
 	tag: unknown; // ?

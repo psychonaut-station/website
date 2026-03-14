@@ -18,6 +18,7 @@ const statisticsEndpoint = `${apiUrl}/v2/events/overview?limit=100`;
 const roundEndpoint = `${apiUrl}/v2/round`;
 const pictureLogsEndpoint = `${process.env.CDN_URL}/pictures`;
 const logsEndpoint = `${process.env.PRODUCTION_URL}/logs`;
+const characterLogsEndpoint = `${process.env.CDN_URL}/character-logs/rounds`;
 
 export function buildUrl(base: string, params: Record<string, string | number | boolean | undefined>): string {
 	const url = new URL(base);
@@ -144,6 +145,8 @@ export async function getRound(roundId: number): Promise<Omit<ExtendedRoundData,
 
 	const formattedPath = `${convertToUTC(round.initialize_datetime, undefined, 'YYYY/MM/DD')}/round-${roundId}`;
 
+	const characterLogs: ExtendedRoundData['round_character_logs'] = await getCharacterIcons(roundId, formattedPath) || [];
+
 	try {
 		const picturesMetadataRequest = await get(`${pictureLogsEndpoint}/${formattedPath}/metadata.json`, revalidate);
 
@@ -190,7 +193,8 @@ export async function getRound(roundId: number): Promise<Omit<ExtendedRoundData,
 	return {
 		...round,
 		round_pictures: roundPictures,
-		log_files: logFiles
+		log_files: logFiles,
+		round_character_logs: characterLogs,
 	};
 }
 
@@ -220,4 +224,22 @@ export async function getLogJson<T>(url: string): Promise<T | null> {
 	}
 
 	return await logResponse.json();
+}
+
+export async function getCharacterIcons(roundId: number, path?: string): Promise<ExtendedRoundData['round_character_logs']> {
+	if(!path) {
+		const round = await getBasicRound(roundId);
+		if(!round) return [];
+		path = `${convertToUTC(round.initialize_datetime, undefined, 'YYYY/MM/DD')}/round-${roundId}`;
+	}
+	let characterLogs: ExtendedRoundData['round_character_logs'] = [];
+	try {
+		const request = await get(`${characterLogsEndpoint}/${path}/metadata.json`, revalidate);
+		if (request.ok) {
+			characterLogs = await request.json();
+		}
+	} catch {
+		// todo: handle error?
+	}
+	return characterLogs;
 }

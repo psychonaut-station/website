@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { ImageLoaderProps } from 'next/image';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import placeholder from '@/app/images/empty-character.png';
 import { playerSpriteImageLoader } from '@/app/lib/image-loader';
@@ -12,16 +13,19 @@ const characterSize = 32;
 const biometricOffset = 7.5;
 
 type PlayerSpriteProps = {
-	ckey: string;
+	url: string;
 	character?: string;
-  job?: string;
+  job?: string | null;
   direction?: Direction;
   scale?: number;
+	loader?: (p: ImageLoaderProps) => string;
+	allowEmpty?: boolean;
 }
 
-export default function Sprite({ ckey, character, job, direction = Direction.Front, scale = 1 }: PlayerSpriteProps) {
+export default function Sprite({ url, character, job, direction = Direction.Front, scale = 1, loader = playerSpriteImageLoader, allowEmpty = true }: PlayerSpriteProps) {
+	const [shouldRender, setShouldRender] = useState(allowEmpty);
 	const ref = useRef<HTMLDivElement>(null);
-	const src = useMemo(() => character && playerSpriteImageLoader({ src: `${ckey}/${encodeURI(character)}.png`, width: characterSize * scale }), [ckey, character, scale]);
+	const src = useMemo(() => character && loader({ src: encodeURI(url), width: characterSize * scale }), [url, character, scale, loader]);
   const area = job === 'Animal' ? Area.Full : Area.Biometric;
 
   useEffect(() => {
@@ -32,8 +36,11 @@ export default function Sprite({ ckey, character, job, direction = Direction.Fro
 
     image.onload = () => {
       ref.current?.style.setProperty('background-image', `url(${src})`);
+			setShouldRender(true);
     };
   }, [src]);
+
+	if(!shouldRender) return null;
 
 	// eslint-disable-next-line prefer-const
 	let [offsetX, offsetY] = directionToOffset(direction);
