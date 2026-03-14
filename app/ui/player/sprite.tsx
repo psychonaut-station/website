@@ -15,9 +15,9 @@ const biometricOffset = 7.5;
 type PlayerSpriteProps = {
 	url: string;
 	character?: string;
-  job?: string | null;
-  direction?: Direction;
-  scale?: number;
+	job?: string | null;
+	direction?: Direction;
+	scale?: number;
 	loader?: (p: ImageLoaderProps) => string;
 	allowEmpty?: boolean;
 }
