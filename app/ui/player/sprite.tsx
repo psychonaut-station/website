@@ -13,8 +13,7 @@ const characterSize = 32;
 const biometricOffset = 7.5;
 
 type PlayerSpriteProps = {
-	url: string;
-	character?: string;
+	src: string | null;
 	job?: string | null;
 	direction?: Direction;
 	scale?: number;
@@ -22,11 +21,14 @@ type PlayerSpriteProps = {
 	allowEmpty?: boolean;
 }
 
-export default function Sprite({ url, character, job, direction = Direction.Front, scale = 1, loader = playerSpriteImageLoader, allowEmpty = true }: PlayerSpriteProps) {
+export default function Sprite({ src: source, job, direction = Direction.Front, scale = 1, loader = playerSpriteImageLoader, allowEmpty = true }: PlayerSpriteProps) {
 	const [shouldRender, setShouldRender] = useState(allowEmpty);
+	const [url, setUrl] = useState<string | null>(null);
+
+	const src = useMemo(() => source && loader({ src: encodeURI(source), width: characterSize * scale }), [source, scale, loader]);
 	const ref = useRef<HTMLDivElement>(null);
-	const src = useMemo(() => character && loader({ src: encodeURI(url), width: characterSize * scale }), [url, character, scale, loader]);
-  const area = job === 'Animal' ? Area.Full : Area.Biometric;
+
+	const area = job === 'Animal' ? Area.Full : Area.Biometric;
 
   useEffect(() => {
     if (!src) return;
@@ -35,12 +37,12 @@ export default function Sprite({ url, character, job, direction = Direction.Fron
     image.src = src;
 
     image.onload = () => {
-      ref.current?.style.setProperty('background-image', `url(${src})`);
+			setUrl(src);
 			setShouldRender(true);
     };
   }, [src]);
 
-	if(!shouldRender) return null;
+	if (!shouldRender) return null;
 
 	// eslint-disable-next-line prefer-const
 	let [offsetX, offsetY] = directionToOffset(direction);
@@ -61,7 +63,7 @@ export default function Sprite({ url, character, job, direction = Direction.Fron
         transform: `scale(${scaleFactor})`,
         width: frameSize,
         height: frameSize,
-        backgroundImage: `url(${placeholder.src})`,
+        backgroundImage: `url(${url || placeholder.src})`,
         backgroundPosition: `${offsetX}px ${offsetY}px`,
       }}
     />

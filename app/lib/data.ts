@@ -145,7 +145,7 @@ export async function getRound(roundId: number): Promise<Omit<ExtendedRoundData,
 
 	const formattedPath = `${convertToUTC(round.initialize_datetime, undefined, 'YYYY/MM/DD')}/round-${roundId}`;
 
-	const characterLogs: ExtendedRoundData['round_character_logs'] = await getCharacterIcons(roundId, formattedPath) || [];
+	const characterLogs: ExtendedRoundData['character_logs'] = await getCharacterIcons(roundId, formattedPath) || null;
 
 	try {
 		const picturesMetadataRequest = await get(`${pictureLogsEndpoint}/${formattedPath}/metadata.json`, revalidate);
@@ -194,7 +194,7 @@ export async function getRound(roundId: number): Promise<Omit<ExtendedRoundData,
 		...round,
 		round_pictures: roundPictures,
 		log_files: logFiles,
-		round_character_logs: characterLogs,
+		character_logs: characterLogs,
 	};
 }
 
@@ -226,20 +226,24 @@ export async function getLogJson<T>(url: string): Promise<T | null> {
 	return await logResponse.json();
 }
 
-export async function getCharacterIcons(roundId: number, path?: string): Promise<ExtendedRoundData['round_character_logs']> {
-	if(!path) {
+export async function getCharacterIcons(roundId: number, path?: string): Promise<ExtendedRoundData['character_logs']> {
+	if (!path) {
 		const round = await getBasicRound(roundId);
-		if(!round) return [];
+		if (!round) return null;
 		path = `${convertToUTC(round.initialize_datetime, undefined, 'YYYY/MM/DD')}/round-${roundId}`;
 	}
-	let characterLogs: ExtendedRoundData['round_character_logs'] = [];
+
+	let characterLogs: ExtendedRoundData['character_logs'] = null;
+
 	try {
 		const request = await get(`${characterLogsEndpoint}/${path}/metadata.json`, revalidate);
+
 		if (request.ok) {
 			characterLogs = await request.json();
 		}
 	} catch {
 		// todo: handle error?
 	}
+
 	return characterLogs;
 }

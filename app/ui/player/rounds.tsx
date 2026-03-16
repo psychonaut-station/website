@@ -8,15 +8,15 @@ import useSWRImmutable from 'swr/immutable';
 import { useDebounce } from 'use-debounce';
 
 import { useScrollInto } from '@/app/hooks/useScrollInto';
-import { Manifest, RoundCharacterLogs, } from '@/app/lib/definitions';
+import { CharacterLogs, Manifest } from '@/app/lib/definitions';
 import fetcher from '@/app/lib/fetcher';
 import { roundCharacterImageLoader } from '@/app/lib/image-loader';
 import { Pagination } from '@/app/ui/navigation';
 import Sprite from '@/app/ui/player/sprite';
 
 type ManifestResponse = {
-	data: Manifest[];
-	total_count: number;
+  data: Manifest[];
+  total_count: number;
 }
 
 const pageSizeOptions = [10, 20, 30, 40] as const;
@@ -36,7 +36,7 @@ export default function Rounds({ ckey }: { ckey: string; }) {
     if (rounds) setOptimisticRounds(rounds);
   }, [rounds]);
 
-	useScrollInto('rounds-navigation', optimisticRounds);
+  useScrollInto('rounds-navigation', optimisticRounds);
 
   return (
     <div className="w-full flex-1 flex flex-col items-center gap-5 pt-8 max-w-5xl">
@@ -47,7 +47,7 @@ export default function Rounds({ ckey }: { ckey: string; }) {
         <div className="w-full flex flex-col">
           {isLoading && !optimisticRounds && !error && (
             <div className="py-20 flex flex-col items-center justify-center opacity-50">
-							<Icon icon={faSpinner} size="3x" spin/>
+              <Icon icon={faSpinner} size="3x" spin/>
               <span className="mt-4 text-lg">Roundlar yükleniyor...</span>
             </div>
           )}
@@ -58,21 +58,21 @@ export default function Rounds({ ckey }: { ckey: string; }) {
               ))}
             </div>
           )}
-					{error && (
-						<div className="w-full flex items-center justify-center">
-							<span className="text-red-500">An error has occurred: {error.message}</span>
-						</div>
-					)}
-					<Pagination
-						id="rounds-navigation"
-						page={page}
-						size={pageSize}
-						options={pageSizeOptions}
-						totalCount={optimisticRounds?.total_count}
-						loading={optimisticRounds !== null && isLoading}
-						onPageChange={setPage}
-						onPageSizeChange={(size) => { setPageSize(size as PageSizeOption); setPage(1); }}
-					/>
+          {error && (
+            <div className="w-full flex items-center justify-center">
+              <span className="text-red-500">An error has occurred: {error.message}</span>
+            </div>
+          )}
+          <Pagination
+            id="rounds-navigation"
+            page={page}
+            size={pageSize}
+            options={pageSizeOptions}
+            totalCount={optimisticRounds?.total_count}
+            loading={optimisticRounds !== null && isLoading}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => { setPageSize(size as PageSizeOption); setPage(1); }}
+          />
         </div>
       </div>
     </div>
@@ -88,8 +88,9 @@ function Round({ manifest, ckey }: { manifest: Manifest, ckey: string }) {
     minute: '2-digit',
   });
 
-	const { data: characterLogsData } = useSWRImmutable<RoundCharacterLogs>(`/api/rounds/character-logs?round_id=${manifest.round_id}`, fetcher);
-	const characterIcon = characterLogsData?.[`${manifest.character_name}_${ckey}`]?.icon;
+  const { data: characterLogsData } = useSWRImmutable<CharacterLogs>(`/api/rounds/character-logs?round_id=${manifest.round_id}`, fetcher);
+  const characterIcon = characterLogsData?.[`${manifest.character_name}_${ckey}`]?.icon;
+
   return (
     <Link
       href={`/rounds/${manifest.round_id}`}
@@ -97,11 +98,10 @@ function Round({ manifest, ckey }: { manifest: Manifest, ckey: string }) {
     >
       <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-950/80 border border-white/10 shrink-0 flex items-center justify-center">
         <Sprite
-          url={`${characterIcon}`}
-					character={manifest.character_name}
-					job={manifest.job}
+          src={characterIcon || null}
+          job={manifest.job}
           scale={1.5}
-					loader={roundCharacterImageLoader}
+          loader={roundCharacterImageLoader}
         />
       </div>
       <div className="flex-1 flex flex-col min-w-0">
@@ -120,7 +120,7 @@ function Round({ manifest, ckey }: { manifest: Manifest, ckey: string }) {
               LATEJOIN
             </span>
           )}
-					{manifest.special && manifest.special !== 'NONE' && (
+          {manifest.special && manifest.special !== 'NONE' && (
             <span className="xs:inline-block text-[9px] sm:text-[10px] text-red-400 border border-white/10 px-1.5 py-0.5 font-mono bg-white/5">
               {manifest.special}
             </span>
