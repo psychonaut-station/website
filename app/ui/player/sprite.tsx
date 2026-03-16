@@ -1,7 +1,7 @@
 'use client';
 
 import { ImageLoaderProps } from 'next/image';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import placeholder from '@/app/images/empty-character.png';
 import { playerSpriteImageLoader } from '@/app/lib/image-loader';
@@ -26,7 +26,6 @@ export default function Sprite({ src: source, job, direction = Direction.Front, 
 	const [url, setUrl] = useState<string | null>(null);
 
 	const src = useMemo(() => source && loader({ src: encodeURI(source), width: characterSize * scale }), [source, scale, loader]);
-	const ref = useRef<HTMLDivElement>(null);
 
 	const area = job === 'Animal' ? Area.Full : Area.Biometric;
 
@@ -58,7 +57,6 @@ export default function Sprite({ src: source, job, direction = Direction.Front, 
   return (
     <div
       className="inline-block bg-no-repeat pixelated"
-			ref={ref}
       style={{
         transform: `scale(${scaleFactor})`,
         width: frameSize,
