@@ -205,7 +205,7 @@ function FriendCard(props: FriendCardProps) {
 		<div className="flex items-center justify-between p-2.5 sm:p-3 bg-gray-800/40 rounded-lg border border-white/5 hover:border-indigo-500/20 transition-all duration-300 group shadow-xs gap-2">
 			<div className="flex items-center gap-2 sm:gap-3 min-w-0">
 				<div className="w-10 h-10 sm:w-14 sm:h-14 rounded-md bg-gray-950/80 border border-white/10 shrink-0 flex items-center justify-center overflow-hidden">
-					<Sprite ckey={friend} character={character?.[0]} job={character?.[1]} scale={1.4} />
+					<Sprite src={character && `${friend}/${character?.[0]}.png` || null} job={character?.[1]} scale={1.4} />
 				</div>
 				<div className="flex flex-col min-w-0">
 					<Link

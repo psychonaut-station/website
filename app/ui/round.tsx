@@ -11,10 +11,11 @@ import { Line, Tooltip as ChartTooltip, type TooltipContentProps,XAxis, YAxis } 
 import { departmentColors, jobDepartments, threatTiers } from '@/app/lib/constants';
 import { capitalize } from '@/app/lib/conversion';
 import { ExtendedRoundData, RoundData } from '@/app/lib/definitions';
-import { pictureImageLoader } from '@/app/lib/image-loader';
+import { pictureImageLoader, roundCharacterImageLoader } from '@/app/lib/image-loader';
 import { relativeTime } from '@/app/lib/time';
 import Carousel from '@/app/ui/carousel';
 import { LineChart } from '@/app/ui/chart';
+import Sprite from '@/app/ui/player/sprite';
 import Tooltip from '@/app/ui/tooltip';
 
 type RoundProps = {
@@ -78,7 +79,7 @@ export default function Round({ round, roundReport, github }: RoundProps) {
 			</div>
 			{/* Players */}
 			{round.roundend_stats && (
-				<Players antagonists={round.antagonists} stats={round.roundend_stats}/>
+				<Players antagonists={round.antagonists} stats={round.roundend_stats} characters={round.character_logs}/>
 			)}
 			{/* Population */}
 			{round.population && (
@@ -103,9 +104,10 @@ export default function Round({ round, roundReport, github }: RoundProps) {
 type PlayersProps = {
 	antagonists: ExtendedRoundData['antagonists'];
 	stats: NonNullable<ExtendedRoundData['roundend_stats']>;
+	characters: ExtendedRoundData['character_logs'];
 };
 
-function Players({ antagonists, stats }: PlayersProps) {
+function Players({ antagonists, stats, characters }: PlayersProps) {
 	const sortedLiving = [...sortByJob(stats.living.humans), ...stats.living.silicons, ...stats.living.others];
 
 	return (
@@ -118,12 +120,24 @@ function Players({ antagonists, stats }: PlayersProps) {
 						const colorStyle = { '--color': departmentColors[jobDepartments[job ?? '']] ?? '#c5c5c5' } as React.CSSProperties;
 						const antagonist = antagonists.filter(player => player.key === key && player.name === name);
 						const ckey = key && key.toLowerCase().replace(/[^a-z0-9-_]/g, ''); // ckey in roundend log is infact not ckey
+						const characterIcon = characters?.[`${name}_${ckey}`]?.icon;
 
 						return (
 							<Tooltip key={index} content={
 								<div className="flex flex-col gap-1 items-center min-w-64 max-w-96 w-max px-3 py-2 backdrop-blur-md border border-gray-700 rounded-md shadow-lg text-sm text-white">
 									<span className="font-bold text-lg flex flex-col items-center">
-										{name}
+										<div className="flex gap-4 items-center">
+											<div className='translate-y-0.5 empty:hidden'>
+												<Sprite
+													src={characterIcon || null}
+													job={job}
+													scale={1}
+													loader={roundCharacterImageLoader}
+													allowEmpty={false}
+												/>
+											</div>
+											{name}
+										</div>
 										{key && <span className="font-normal text-sm text-gray-400">{key}</span>}
 									</span>
 									{job && <span className="text-(--color)" style={colorStyle}>{job}{module && ` (${module})`}</span>}

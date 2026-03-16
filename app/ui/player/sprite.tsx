@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { ImageLoaderProps } from 'next/image';
+import { useEffect, useMemo, useState } from 'react';
 
 import placeholder from '@/app/images/empty-character.png';
 import { playerSpriteImageLoader } from '@/app/lib/image-loader';
@@ -12,17 +13,21 @@ const characterSize = 32;
 const biometricOffset = 7.5;
 
 type PlayerSpriteProps = {
-	ckey: string;
-	character?: string;
-  job?: string;
-  direction?: Direction;
-  scale?: number;
+	src: string | null;
+	job?: string | null;
+	direction?: Direction;
+	scale?: number;
+	loader?: (p: ImageLoaderProps) => string;
+	allowEmpty?: boolean;
 }
 
-export default function Sprite({ ckey, character, job, direction = Direction.Front, scale = 1 }: PlayerSpriteProps) {
-	const ref = useRef<HTMLDivElement>(null);
-	const src = useMemo(() => character && playerSpriteImageLoader({ src: `${ckey}/${encodeURI(character)}.png`, width: characterSize * scale }), [ckey, character, scale]);
-  const area = job === 'Animal' ? Area.Full : Area.Biometric;
+export default function Sprite({ src: source, job, direction = Direction.Front, scale = 1, loader = playerSpriteImageLoader, allowEmpty = true }: PlayerSpriteProps) {
+	const [shouldRender, setShouldRender] = useState(allowEmpty);
+	const [url, setUrl] = useState<string | null>(null);
+
+	const src = useMemo(() => source && loader({ src: encodeURI(source), width: characterSize * scale }), [source, scale, loader]);
+
+	const area = job === 'Animal' ? Area.Full : Area.Biometric;
 
   useEffect(() => {
     if (!src) return;
@@ -31,9 +36,12 @@ export default function Sprite({ ckey, character, job, direction = Direction.Fro
     image.src = src;
 
     image.onload = () => {
-      ref.current?.style.setProperty('background-image', `url(${src})`);
+			setUrl(src);
+			setShouldRender(true);
     };
   }, [src]);
+
+	if (!shouldRender) return null;
 
 	// eslint-disable-next-line prefer-const
 	let [offsetX, offsetY] = directionToOffset(direction);
@@ -49,12 +57,11 @@ export default function Sprite({ ckey, character, job, direction = Direction.Fro
   return (
     <div
       className="inline-block bg-no-repeat pixelated"
-			ref={ref}
       style={{
         transform: `scale(${scaleFactor})`,
         width: frameSize,
         height: frameSize,
-        backgroundImage: `url(${placeholder.src})`,
+        backgroundImage: `url(${url || placeholder.src})`,
         backgroundPosition: `${offsetX}px ${offsetY}px`,
       }}
     />

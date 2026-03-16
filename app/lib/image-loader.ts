@@ -11,3 +11,7 @@ export function pictureImageLoader(props: ImageLoaderProps) {
 export function playerSpriteImageLoader(props: ImageLoaderProps) {
   return `${process.env.CDN_URL ?? 'https://cdn.ss13.tr'}/characters/${props.src}`;
 }
+
+export function roundCharacterImageLoader(props: ImageLoaderProps) {
+  return `${process.env.CDN_URL ?? 'https://cdn.ss13.tr'}/character-logs/characters/${props.src}`;
+}
