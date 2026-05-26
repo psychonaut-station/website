@@ -147,6 +147,7 @@ export type RoundStats = {
 } | null;
 
 export type RoundPlayer = {
+	real_name?: string;
 	name: string;
 	ckey: string | null;
 	job: string | null;
