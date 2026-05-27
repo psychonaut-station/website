@@ -58,7 +58,7 @@ export default function Round({ round, roundReport, github }: RoundProps) {
 				{round.roundend_stats && (
 					<span><span>İstasyon Bütünlüğü:</span> %{round.roundend_stats.station_integrity}</span>
 				)}
-				{round.dynamic_tier && (
+				{(round.dynamic_tier !== null) && (
 					<span><span>Tehlike Seviyesi:</span> {threatTiers[round.dynamic_tier]}</span>
 				)}
 				{round.storyteller && (
@@ -116,11 +116,12 @@ function Players({ antagonists, stats, characters }: PlayersProps) {
 			<div className="flex flex-col items-center gap-3">
 				<span className="text-center text-3xl font-bold">Oyuncular</span>
 				<div className="flex flex-wrap justify-center gap-2 px-2 py-6 sm:px-14 md:px-18 xl:px-60">
-					{sortedLiving.map(({ name, ckey: key, job, species, module }, index) => {
+					{sortedLiving.map(({ name, real_name, ckey: key, job, species, module }, index) => {
+						const mob_name = real_name || name;
 						const colorStyle = { '--color': departmentColors[jobDepartments[job ?? '']] ?? '#c5c5c5' } as React.CSSProperties;
 						const antagonist = antagonists.filter(player => player.key === key && player.name === name);
 						const ckey = key && key.toLowerCase().replace(/[^a-z0-9-_]/g, ''); // ckey in roundend log is infact not ckey
-						const characterIcon = characters?.[`${name}_${ckey}`]?.icon;
+						const characterIcon = characters?.[`${mob_name}_${ckey}`]?.icon;
 
 						return (
 							<Tooltip key={index} content={
@@ -136,7 +137,7 @@ function Players({ antagonists, stats, characters }: PlayersProps) {
 													allowEmpty={false}
 												/>
 											</div>
-											{name}
+											{mob_name}
 										</div>
 										{key && <span className="font-normal text-sm text-gray-400">{key}</span>}
 									</span>
@@ -152,7 +153,7 @@ function Players({ antagonists, stats, characters }: PlayersProps) {
 									)}
 								</div>
 							}>
-								<Link href={ckey && `/players/${ckey}` || '#'} className="text-center border px-2 py-1 rounded-sm text-(--color) border-(--color) hover:bg-(--color) hover:text-black transition-colors cursor-pointer" style={colorStyle}>{name}</Link>
+								<Link href={ckey && `/players/${ckey}` || '#'} className="text-center border px-2 py-1 rounded-sm text-(--color) border-(--color) hover:bg-(--color) hover:text-black transition-colors cursor-pointer" style={colorStyle}>{mob_name}</Link>
 							</Tooltip>
 						);
 					})}
