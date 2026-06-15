@@ -121,7 +121,8 @@ function Players({ antagonists, stats, characters }: PlayersProps) {
 						const colorStyle = { '--color': departmentColors[jobDepartments[job ?? '']] ?? '#c5c5c5' } as React.CSSProperties;
 						const antagonist = antagonists.filter(player => player.key === key && player.name === name);
 						const ckey = key && key.toLowerCase().replace(/[^a-z0-9-_]/g, ''); // ckey in roundend log is infact not ckey
-						const characterIcon = characters?.[`${mob_name}_${ckey}`]?.icon;
+						const characterIndex = characters?.['indices'][`${mob_name}_${ckey}`];
+						const characterIcon = characterIndex !== undefined ? characters?.['characters'][characterIndex].icon : undefined;
 
 						return (
 							<Tooltip key={index} content={
