@@ -89,7 +89,8 @@ function Round({ manifest, ckey }: { manifest: Manifest, ckey: string }) {
   });
 
   const { data: characterLogsData } = useSWRImmutable<CharacterLogs>(`/api/rounds/character-logs?round_id=${manifest.round_id}`, fetcher);
-  const characterIcon = characterLogsData?.[`${manifest.character_name}_${ckey}`]?.icon;
+	const characterIndex = characterLogsData?.['indices'][`${manifest.character_name}_${ckey}`];
+	const characterIcon = characterIndex !== undefined ? characterLogsData?.['characters'][characterIndex].icon : undefined;
 
   return (
     <Link

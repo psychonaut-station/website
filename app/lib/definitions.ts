@@ -103,7 +103,18 @@ export type ExtendedRoundData = RoundData & {
 	roundend_stats: RoundStats | null;
 };
 
-export type CharacterLogs = Record<string, { name: string; ckey: string; icon: string }>;
+export type CharacterLogs = {
+	version: number;
+	indices: Record<string, number>;
+	characters: {
+		name: string;
+		ckey: string;
+		icon: string;
+		job: string;
+		special_roles: string[];
+	}[];
+};
+
 
 export type Picture = {
 	tag: unknown; // ?
