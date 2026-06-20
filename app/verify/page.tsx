@@ -1,11 +1,5 @@
-import { Suspense } from 'react';
-
-import Verify from '@/app/ui/verify';
-
 export default function Page() {
   return (
-    <Suspense fallback={<div>Yükleniyor...</div>}>
-      <Verify />
-    </Suspense>
+    <span className="text-red-500">Bu sayfa devre dışı, hesabını doğrulamak için Discord'u takip et.</span>
   );
 }
