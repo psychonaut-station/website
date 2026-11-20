@@ -16,7 +16,7 @@ export const authOptions: NextAuthOptions = {
 		error: '/sign-in',
 		signOut: '/sign-in',
   },
-  providers: [Discord({ clientId, clientSecret, authorization: { params: { scope: 'identify' } } })],
+  providers: [Discord({ clientId, clientSecret, issuer: 'https://discord.com', authorization: { params: { scope: 'identify' } } })],
   callbacks: {
     async signIn() {
       try {
